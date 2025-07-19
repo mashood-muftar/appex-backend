@@ -1,0 +1,13 @@
+export const serviceAccount = {
+  "type": "service_account",
+  "project_id": "apex-biotics---pill-reminder",
+  "private_key_id": "aa30209f46d69f998deeb728f361fef7488f2476",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEugIBADANBgkqhkiG9w0BAQEFAASCBKQwggSgAgEAAoIBAQDLfexB88jCzwrd\nnm3McupI93AALaX3XwnYYTfarJO8I3MY6PBJnODfl4TT8DOyc/MH/2UjoOLs/HE0\nIVpxA6Pf4FgJG301sJfeF5AJ2QeiJgUdU6pyeQ5bWIjHZ1n+rEvHezbT1TmuCfi4\n3Z0iHw6J1y3QiyP2rd/VkJ/UbW14auezjrEDnY++v9wJZtUk0RN0mnNkZ5zJJPKv\n4DBs68H0ZBpy0paIjB/JGiQGB92oSliTezRukiZhRLdcp5Qk728jXBW1h5sicUND\nXwVYj4Ut2li6q/8k27Nf4rAwc6nuXrMy/UCCLdTzSONUcYknGqkyEH2IS5YJHBuO\ntkpEkQlJAgMBAAECgf92o6SGwO9Rft1vx5ywfV1awpMZdI0/R1DDKxEFbkpGywCr\nD+s3hJN1oryDxgip2MfVM6EaYQ3sqTNIvnB/7Ejdj342AIPWIoGX1e56/sCsRTAq\nVNmfU2RDIkSALNWrTvD3KZR0yQfueHvoE0NURi0FiAVxlDKF58kN2CGjDqmFeupZ\nwPeu6h73bb7ljSWJI/b4hHbDqzPdMUO/M9dOasfEfucPoWBEgrgGRC43+2I4janR\nPMM6Cs7VfYw1Gc+iMYbAKZ58xgvabkhPtXew5HtQRICFUtbb8rJG0xDq0OARiMA+\n+uL6Rfswb+rq+2Bt8p3GBLSNcHjZCdAZLd54YgECgYEA595p6b9E4pVAXv0GYoCI\nbr+ZybL5BRn22KOlsCUMfy3ao9F5+p3pRXyeWeC5DvOMqN8G9Nfg42ByOcNvHGTW\ndn1Kle3TLS1ICbvk6vEl9ajeezmT6lmLod33Q2qffVp3oLFOxEC/PLBcCWbLbo8b\nXnbPNOMIe3En6CopUAdRegECgYEA4Kt5d9lTValCC3BJByRmFjP/NecrXBzQi9Ce\nVukWAZddQGi8aY6TWA0H9NxQ8VAfCgurl8i0RHJIgnvxT69BaK01Yl1ZOnue0OJj\nks5HJK5tdJ8NOFlMv8kcohOy+P6nXz3EA+5yhEBlqQw96sCKtynQA6+lis+uA+lE\n6HtPP0kCgYAkr3LwcbuzYcvie4QEF7P+WcA6Ql/V58q/cfzoBqSYhqe+HYmAFnXu\n8Y2YSM7ex7fsjATsvi8tqnfIHdy5kFbCPoaLfCpaTnzEVX8dkPPhj0tMEcsOXAaU\noKrbdsYvLh4ZRZRhxqC7OGgHcMUlA+1fn8qe4oDYDwoyWGFa8R16AQKBgEC0wjAl\nVF34eIAI38+ByTEd2qPwp0lJNzr9Y40OZnsg2Aej4pfYK1GRtzfreBh4BeiDwfDe\nKiUIcR+7iJ11kTYPpK9myTsRvYTVnu36IP1Mi1OqN0mCVptp1ahMWiBiX1wL0vd6\n5lp2nZDZaL/ConDsRu+418mp1KlltqXqVcGZAoGAShp3bNwxwj8gyU5ntUbdI3RP\noCwe/42VhB7guLGCTsRxYDPa5LfS54dR9w5pG5rlXNgp3zOn48lWJTaOZ5hIswxx\natqj+nd39rKwWJDoJtusqU5A1s6+agmXu76BhkPECWj8lx+mBv5OaLz4vhSBBbZX\n6VY+6oDFubpGeyUUWOY=\n-----END PRIVATE KEY-----\n",
+  "client_email": "firebase-adminsdk-fbsvc@apex-biotics---pill-reminder.iam.gserviceaccount.com",
+  "client_id": "113269314428998932527",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-fbsvc%40apex-biotics---pill-reminder.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+};

@@ -1,0 +1,20 @@
+{
+    "keep": {
+        "days": true,
+        "amount": 14
+    },
+    "auditLog": "/Users/mashoodhussain/Downloads/Apex-Biotics-Supplement-BE-master/logs/.f2c2b56b5392f904e8b978d1c1eb7f600e007281-audit.json",
+    "files": [
+        {
+            "date": 1752641036635,
+            "name": "/Users/mashoodhussain/Downloads/Apex-Biotics-Supplement-BE-master/logs/error-2025-07-16.log",
+            "hash": "9082e9a16399a6b729b1174889f4acf5e7ae0dff56933840bf006ef540922cf4"
+        },
+        {
+            "date": 1752852327838,
+            "name": "/Users/mashoodhussain/Downloads/Apex-Biotics-Supplement-BE-master/logs/error-2025-07-18.log",
+            "hash": "a34afb3ae6934a0382f4539d8942f9b12e3160dfc162e0f1a7da64526252f807"
+        }
+    ],
+    "hashType": "sha256"
+}
