@@ -13,7 +13,7 @@ router.post('/register/invitation', registerWithInvitation);
 router.post('/verify-otp', verifyEmail);
 router.post('/resend-otp', resendOTP);
 router.post('/login', login);
-router.put('/updateDeviceToken',updateDeviceToken)
+router.put('/updateDeviceToken',authenticate,updateDeviceToken)
 
 // Protected routes
 router.get('/profile', authenticate, getProfile);
