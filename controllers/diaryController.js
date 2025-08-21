@@ -47,8 +47,7 @@ export const shareDiary = async (req, res) => {
     const supplementStatusData = await SupplementStatus.aggregate([
       {
         $match: {
-          userId: new mongoose.Types.ObjectId(userId),
-          date: { $gte: startDate, $lte: endDate }
+          userId: new mongoose.Types.ObjectId(userId)
         }
       },
       {
