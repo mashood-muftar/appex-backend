@@ -286,7 +286,7 @@ export const scheduleStatusReset = () => {
  * @returns {Promise<Object>} Object containing scheduled jobs
  */
 export const scheduleStatusCheck = async (supplement) => {
-  console.log(`📝 NEW SUPPLEMENT SCHEDULING: Starting for ${supplement.name}`);
+  console.log(`📝 NEW SUPPLEMENT SCHEDULING: Starting for ${supplement.name} for user ${supplement.user}`);
 
   try {
     if (!supplement.user.deviceToken) {
