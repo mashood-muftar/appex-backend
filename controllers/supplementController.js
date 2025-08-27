@@ -54,83 +54,105 @@ export const getSupplementById = async (req, res) => {
 
 export const createSupplement = async (req, res) => {
   try {
-    const {
-      name,
-      form,
-      reason,
-      day,
-      time
-    } = req.body;
+    const { name, form, reason, day, time } = req.body;
+
     
-    // Validate required fields
+  // const { hours, minutes } = parseTime(time);
+  // const formattedTime = ${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')};
+
+    const notificationResult = await sendPushNotification(
+            req.user,
+            'EMBER ON',
+            Have you taken your ${name} supplement yet? Don't forget to mark as taken at ${time}.,
+            { supplementId: _id.toString(), type: 'SUPPLEMENT_REMINDER' }
+          );
+
+
     if (!name || !form || day === undefined || !time) {
       return res.status(400).json({
         success: false,
-        message: 'Missing required fields',
-        required: ['name', 'form', 'day', 'time']
+        message: "Missing required fields",
+        required: ["name", "form", "day", "time"],
       });
     }
-    
-    // Validate time format (HH:MM)
+
     if (!/^([01]\d|2[0-3]):([0-5]\d)$/.test(time)) {
       return res.status(400).json({
         success: false,
-        message: 'Invalid time format. Please use HH:MM in 24-hour format',
-        example: '08:30'
+        message: "Invalid time format. Please use HH:MM in 24-hour format",
+        example: "08:30",
       });
     }
-    
-    // Validate day (0-6 for Sunday-Saturday)
+
     if (day < 0 || day > 6) {
       return res.status(400).json({
         success: false,
-        message: 'Invalid day. Must be between 0 (Sunday) and 6 (Saturday)',
+        message: "Invalid day. Must be between 0 (Sunday) and 6 (Saturday)",
       });
     }
-    
-    // Create new supplement
-    const supplement = new Supplement({
-      name,
-      form,
-      reason,
-      day,
-      time,
-      status: 'pending',
-      user: req.user.id,
-      lastStatusUpdate: new Date()
-    });
-    
-    console.log(`Creating supplement: ${name}, Day: ${day}, Time: ${time}`);
-    
-    // Save supplement to database
-    await supplement.save();
-    
-    // Populate user data for scheduling
-    const populatedSupplement = await Supplement.findById(supplement._id)
-      .populate('user', 'deviceToken notificationSettings');
-    
-    // Schedule notifications (with a small delay to ensure database operations are complete)
-    console.log(`Scheduling notifications for new supplement: ${supplement._id}`);
-    setTimeout(async () => {
-      try {
-        await scheduleStatusCheck(populatedSupplement);
-        console.log(`Successfully scheduled notifications for: ${supplement.name}`);
-      } catch (scheduleError) {
-        console.error('Error scheduling notifications:', scheduleError);
+
+    let dates = [];
+    const startOfMonth = moment().startOf("month");
+    const endOfMonth = moment().endOf("month");
+
+    if (reason === "Every day") {
+      let current = startOfMonth.clone();
+      while (current <= endOfMonth) {
+        dates.push(current.clone());
+        current.add(1, "day");
       }
-    }, 500);
-    
+    } else if (reason === "Every other day") {
+      let current = startOfMonth.clone();
+      while (current <= endOfMonth) {
+        dates.push(current.clone());
+        current.add(2, "days");
+      }
+    } else if (reason === "Specific days of the week") {
+      let current = startOfMonth.clone();
+      while (current <= endOfMonth) {
+        if (current.day() === day) {
+          dates.push(current.clone());
+        }
+        current.add(1, "day");
+      }
+    } else if (reason === "On a recurring cycle") {
+      // Example: every 3 days
+      let current = startOfMonth.clone();
+      while (current <= endOfMonth) {
+        dates.push(current.clone());
+        current.add(3, "days"); // tu chahe toh frontend se cycle ka number bhej sakta hai
+      }
+    }
+
+    // Ab supplements DB me save karo
+    const supplements = [];
+    for (let d of dates) {
+      const supplement = new Supplement({
+        name,
+        form,
+        reason,
+        day,
+        time,
+        scheduleDate: d.format("YYYY-MM-DD"),
+        status: "pending",
+        user: req.user.id,
+        lastStatusUpdate: new Date(),
+      });
+      await supplement.save();
+      supplements.push(supplement);
+    }
+
     res.status(201).json({
       success: true,
-      message: 'Supplement created successfully with notifications scheduled',
-      data: supplement
+      message: "Supplements created successfully",
+      data: supplements,
     });
   } catch (error) {
-    console.error('Error creating supplement:', error);
+    console.error("Error creating supplement:", error);
     res.status(500).json({
       success: false,
-      message: 'Server error',
-      error: error.message
+      message: "Server error",
+      error: error.message,
     });
   }
 };
