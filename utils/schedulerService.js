@@ -115,7 +115,7 @@ export const scheduleSupplementNotification = async (supplement) => {
 
       const notificationResult = await sendPushNotification(
         user,
-        'Apex Biotics',
+        'EMBER ON',
         `Have you taken your ${name} supplement yet? Don't forget to mark as taken at ${formattedTime}.`,
         { supplementId: _id.toString(), type: 'SUPPLEMENT_REMINDER' }
       );

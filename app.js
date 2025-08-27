@@ -57,7 +57,7 @@ app.use('/api/friends', friendsRoutes);
 app.use('/api/notifications', notificationRoutes);
 
 app.get('/', (req, res) => {
-    res.send('Welcome to the Apex Biotics API');
+    res.send('Welcome to the EMBER ON API');
 });
 
 // Error handling middleware

@@ -27,15 +27,15 @@ const transporter = nodemailer.createTransport({
 export const sendInvitationEmail = async (email, senderName, invitationLink) => {
   try {
     const info = await transporter.sendMail({
-      from: `"APEX BIOTICS" <${process.env.EMAIL_USER}>`,
+      from: `"EMBER ON" <${process.env.EMAIL_USER}>`,
       to: email,
-      subject: `${senderName} invites you to join APEX BIOTICS!`,
+      subject: `${senderName} invites you to join EMBER ON!`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <h2>You've been invited to APEX BIOTICS!</h2>
-          <p>${senderName} has invited you to join APEX BIOTICS - a platform to track and share your progress.</p>
+          <h2>You've been invited to EMBER ON!</h2>
+          <p>${senderName} has invited you to join EMBER ON - a platform to track and share your progress.</p>
           <p>Click the link below to register and start sharing:</p>
-          <p><a href="${invitationLink}" style="display: inline-block; background-color: #ff6f00; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">Join APEX BIOTICS</a></p>
+          <p><a href="${invitationLink}" style="display: inline-block; background-color: #ff6f00; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">Join EMBER ON</a></p>
           <p>This invitation will expire in 7 days.</p>
           <p>If you have any questions, please contact support.</p>
         </div>
@@ -53,12 +53,12 @@ export const sendInvitationEmail = async (email, senderName, invitationLink) => 
 export const sendOTPEmail = async (email, name, otp) => {
   try {
     const info = await transporter.sendMail({
-      from: `"APEX BIOTICS" <${process.env.EMAIL_USER}>`,
+      from: `"EMBER ON" <${process.env.EMAIL_USER}>`,
       to: email,
-      subject: `Your Verification Code for APEX BIOTICS`,
+      subject: `Your Verification Code for EMBER ON`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <h2>Welcome to APEX BIOTICS, ${name}!</h2>
+          <h2>Welcome to EMBER ON, ${name}!</h2>
           <p>Your verification code is:</p>
           <div style="background-color: #f4f4f4; padding: 15px; text-align: center; font-size: 24px; letter-spacing: 5px; font-weight: bold; margin: 20px 0;">
             ${otp}
@@ -80,9 +80,9 @@ export const sendOTPEmail = async (email, name, otp) => {
 export const sendPasswordResetOTPEmail = async (email, name, otp) => {
   try {
     const info = await transporter.sendMail({
-      from: `"APEX BIOTICS" <${process.env.EMAIL_USER}>`,
+      from: `"EMBER ON" <${process.env.EMAIL_USER}>`,
       to: email,
-      subject: `Password Reset Code for APEX BIOTICS`,
+      subject: `Password Reset Code for EMBER ON`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
           <h2>Hello ${name},</h2>
@@ -129,7 +129,7 @@ export const sendDiaryEmail = async ({ recipientEmail, senderName, senderEmail, 
     });
 
     const info = await transporter.sendMail({
-      from: `"${senderName} via APEX BIOTICS" <${process.env.EMAIL_USER}>`,
+      from: `"${senderName} via EMBER ON" <${process.env.EMAIL_USER}>`,
       to: recipientEmail,
       subject: `${senderName} shared their supplement diary with you`,
       html: `
@@ -138,7 +138,7 @@ export const sendDiaryEmail = async ({ recipientEmail, senderName, senderEmail, 
           <p>${senderName} (${senderEmail}) has shared their supplement diary with you.</p>
           <p>You can find their diary for the last month attached to this email.</p>
           <p>The diary contains their supplement intake records from ${formattedDate} going back one month.</p>
-          <p>If you'd like to track your own supplements, consider joining APEX BIOTICS!</p>
+          <p>If you'd like to track your own supplements, consider joining EMBER ON!</p>
           <p>This is an automated message. Please do not reply to this email.</p>
         </div>
       `,
