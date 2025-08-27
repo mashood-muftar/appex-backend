@@ -2,7 +2,6 @@
 import Supplement from "../models/Supplement.js";
 import SupplementStatus from "../models/SupplementStatus.js";
 import { scheduleStatusCheck, scheduleSupplementNotification } from "../utils/schedulerService.js";
-import { sendPushNotification } from './notificationService.js';
 import mongoose from 'mongoose'
 
 
@@ -61,12 +60,12 @@ export const createSupplement = async (req, res) => {
   // const { hours, minutes } = parseTime(time);
   // const formattedTime = ${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')};
 
-    // const notificationResult = await sendPushNotification(
-    //         req.user,
-    //         'EMBER ON',
-    //         Have you taken your ${name} supplement yet? Don't forget to mark as taken at ${time}.,
-    //         { supplementId: _id.toString(), type: 'SUPPLEMENT_REMINDER' }
-    //       );
+    const notificationResult = await sendPushNotification(
+            req.user,
+            'EMBER ON',
+            Have you taken your ${name} supplement yet? Don't forget to mark as taken at ${time}.,
+            { supplementId: _id.toString(), type: 'SUPPLEMENT_REMINDER' }
+          );
 
 
     if (!name || !form || day === undefined || !time) {
