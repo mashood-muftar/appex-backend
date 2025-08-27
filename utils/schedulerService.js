@@ -29,7 +29,7 @@ const getCurrentUKDateTime = () => {
  * @returns {Promise<Object>} Object containing scheduled jobs
  */
 export const scheduleSupplementNotification = async (supplement) => {
-  console.log(`📅 SCHEDULING: Starting for supplement ID: ${supplement._id}, Name: ${supplement.name}`);
+  //console.log(`📅 SCHEDULING: Starting for supplement ID: ${supplement._id}, Name: ${supplement.name}`);
 
   const { _id, day, time, name, user } = supplement;
   const jobId = `supplement_${_id}`;
@@ -90,7 +90,7 @@ export const scheduleSupplementNotification = async (supplement) => {
 
   // Schedule reminder job with debounce mechanism
   const reminderJob = schedule.scheduleJob(reminderIdentifier, reminderRule, async () => {
-    console.log(`⏰ REMINDER TRIGGERED: ${getCurrentUKDateTime().toISOString()} for supplement ${name}`);
+    //console.log(`⏰ REMINDER TRIGGERED: ${getCurrentUKDateTime().toISOString()} for supplement ${name}`);
     try {
       // Get the current supplement to check last notification time and status
       const currentSupplement = await Supplement.findById(_id);
@@ -174,9 +174,9 @@ export const scheduleSupplementNotification = async (supplement) => {
   // Store jobs with unique identifiers
   activeJobs.set(jobId, [reminderJob, missedJob]);
 
-  console.log(`🔜 NEXT REMINDER: ${reminderJob.nextInvocation()?.toISOString() || 'Unknown'}`);
-  console.log(`🔜 NEXT MISSED CHECK: ${missedJob.nextInvocation()?.toISOString() || 'Unknown'}`);
-  console.log(`✅ SCHEDULING COMPLETE: For supplement ${name}`);
+  //console.log(`🔜 NEXT REMINDER: ${reminderJob.nextInvocation()?.toISOString() || 'Unknown'}`);
+  //console.log(`🔜 NEXT MISSED CHECK: ${missedJob.nextInvocation()?.toISOString() || 'Unknown'}`);
+  // console.log(`✅ SCHEDULING COMPLETE: For supplement ${name}`);
 
   return { reminderJob, missedJob };
 };
