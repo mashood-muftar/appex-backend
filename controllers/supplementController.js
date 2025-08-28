@@ -3,7 +3,7 @@ import Supplement from "../models/Supplement.js";
 import SupplementStatus from "../models/SupplementStatus.js";
 import { scheduleStatusCheck, scheduleSupplementNotification } from "../utils/schedulerService.js";
 import mongoose from 'mongoose'
-
+import moment from "moment";
 
 
 export const getAllSupplements = async (req, res) => {
@@ -52,21 +52,11 @@ export const getSupplementById = async (req, res) => {
   }
 };
 
+
+
 export const createSupplement = async (req, res) => {
   try {
     const { name, form, reason, day, time } = req.body;
-
-    
-  // const { hours, minutes } = parseTime(time);
-  // const formattedTime = ${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')};
-
-    const notificationResult = await sendPushNotification(
-            req.user,
-            'EMBER ON',
-            Have you taken your ${name} supplement yet? Don't forget to mark as taken at ${time}.,
-            { supplementId: _id.toString(), type: 'SUPPLEMENT_REMINDER' }
-          );
-
 
     if (!name || !form || day === undefined || !time) {
       return res.status(400).json({
@@ -156,6 +146,88 @@ export const createSupplement = async (req, res) => {
     });
   }
 };
+// export const createSupplement = async (req, res) => {
+//   try {
+//     const {
+//       name,
+//       form,
+//       reason,
+//       day,
+//       time
+//     } = req.body;
+    
+//     // Validate required fields
+//     if (!name || !form || day === undefined || !time) {
+//       return res.status(400).json({
+//         success: false,
+//         message: 'Missing required fields',
+//         required: ['name', 'form', 'day', 'time']
+//       });
+//     }
+    
+//     // Validate time format (HH:MM)
+//     if (!/^([01]\d|2[0-3]):([0-5]\d)$/.test(time)) {
+//       return res.status(400).json({
+//         success: false,
+//         message: 'Invalid time format. Please use HH:MM in 24-hour format',
+//         example: '08:30'
+//       });
+//     }
+    
+//     // Validate day (0-6 for Sunday-Saturday)
+//     if (day < 0 || day > 6) {
+//       return res.status(400).json({
+//         success: false,
+//         message: 'Invalid day. Must be between 0 (Sunday) and 6 (Saturday)',
+//       });
+//     }
+    
+//     // Create new supplement
+//     const supplement = new Supplement({
+//       name,
+//       form,
+//       reason,
+//       day,
+//       time,
+//       status: 'pending',
+//       user: req.user.id,
+//       lastStatusUpdate: new Date()
+//     });
+    
+//     console.log(`Creating supplement: ${name}, Day: ${day}, Time: ${time}`);
+    
+//     // Save supplement to database
+//     await supplement.save();
+    
+//     // Populate user data for scheduling
+//     const populatedSupplement = await Supplement.findById(supplement._id)
+//       .populate('user', 'deviceToken notificationSettings');
+    
+//     // Schedule notifications (with a small delay to ensure database operations are complete)
+//     console.log(`Scheduling notifications for new supplement: ${supplement._id}`);
+//     setTimeout(async () => {
+//       try {
+//         await scheduleStatusCheck(populatedSupplement);
+//         console.log(`Successfully scheduled notifications for: ${supplement.name}`);
+//       } catch (scheduleError) {
+//         console.error('Error scheduling notifications:', scheduleError);
+//       }
+//     }, 500);
+    
+//     res.status(201).json({
+//       success: true,
+//       message: 'Supplement created successfully with notifications scheduled',
+//       data: supplement
+//     });
+//   } catch (error) {
+//     console.error('Error creating supplement:', error);
+//     res.status(500).json({
+//       success: false,
+//       message: 'Server error',
+//       error: error.message
+//     });
+//   }
+// };
 
 // Add schedule to existing supplement (second screen)
 export const addSchedule = async (req, res) => {
@@ -754,6 +826,3 @@ function getISOWeek(date) {
 //     });
 //   }
 // };
-
-
-

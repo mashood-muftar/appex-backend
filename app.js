@@ -21,6 +21,8 @@ import friendsRoutes from './routes/friendsRoutes.js';
 import notificationRoutes from './routes/notificationRoutes.js';
 import { initializeAllSchedules, scheduleStatusReset } from './utils/schedulerService.js';
 
+import diaryRoutes from "./routes/diaryRoutes.js";
+
 const app = express();
 //automation checkig
 
@@ -55,6 +57,8 @@ app.use('/api/settings', settingsRoutes);
 app.use('/api/progress', progressRoutes);
 app.use('/api/friends', friendsRoutes);
 app.use('/api/notifications', notificationRoutes);
+app.use("/api/diaries", diaryRoutes);
+
 
 app.get('/', (req, res) => {
     res.send('Welcome to the EMBER ON API');
