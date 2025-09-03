@@ -88,7 +88,7 @@ export const sendPushNotification = async (userId, title, body, data = {}) => {
       return false;
     }
 
-    console.log(📱 DEVICE TOKEN: ${user.deviceToken.substring(0, 10)}...);
+    // console.log(📱 DEVICE TOKEN: ${user.deviceToken.substring(0, 10)}...);
 
     const stringifiedData = {};
     for (const [key, value] of Object.entries(data)) {
@@ -117,14 +117,14 @@ export const sendPushNotification = async (userId, title, body, data = {}) => {
     });
     await notification.save();
 
-    console.log(📤 SENDING MESSAGE: To FCM for user ${userId});
+    // console.log(📤 SENDING MESSAGE: To FCM for user ${userId});
     const response = await admin.messaging().send(message);
-    console.log(✅ SUCCESS: Notification sent. Response: ${response});
+    // console.log(✅ SUCCESS: Notification sent. Response: ${response});
     return true;
   } catch (error) {
-    console.error(❌ ERROR: Failed to send notification:, error);
+    // console.error(❌ ERROR: Failed to send notification:, error);
     if (error.code === 'messaging/registration-token-not-registered') {
-      console.error(❌ TOKEN EXPIRED: Removing invalid token);
+      // console.error(❌ TOKEN EXPIRED: Removing invalid token);
       await User.findByIdAndUpdate(userId, { Manufactured: null });
     }
     return false;
