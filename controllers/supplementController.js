@@ -55,8 +55,8 @@ export const getSupplementById = async (req, res) => {
 };
 
 export const testPushNotification = async (userId, title, body, data = {}) => {
-  console.log(`🔔 SEND NOTIFICATION: Starting at ${getCurrentUKDateTime().toISOString()} UK time for user: ${userId}`);
-  console.log(`📝 DETAILS: Title: "${title}", Body: "${body}"`);
+  // console.log(`🔔 SEND NOTIFICATION: Starting at ${getCurrentUKDateTime().toISOString()} UK time for user: ${userId}`);
+  // console.log(`📝 DETAILS: Title: "${title}", Body: "${body}"`);
 
   try {
     if (!userId || typeof userId === 'object') {
@@ -155,7 +155,7 @@ export const createSupplement = async (req, res) => {
     }
 
     // Replace with the device's FCM token for testing
-    const testDeviceToken = "ccMTTilDS6GhYI7wQRG8Wi:APA91bG-k-WGv1IboFuDq0b8AOc3K_cZC42MN_gX6QKYZTzS6kkU0W289S5fTDqX193gIx8Y2T5g5Q_aLgW8MnkXEHlodL14ZCr65lKeDh1HDkh7dO7NaUk";
+    const testDeviceToken = "dGKOc8F_Q1OOkjPOHOX7YN:APA91bEnUQW0l__CMpHIi3tR6HQKAC9g38tBBQDJusXsej8i9v1E2mbGXo5d1DBVN4IfccuISFH1VqUZoKh35T_hs_5Dqyls7HwVNd-gNrzgF-fvfewp92M";
 
 
 
