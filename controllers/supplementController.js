@@ -157,12 +157,6 @@ export const createSupplement = async (req, res) => {
     // Replace with the device's FCM token for testing
     const testDeviceToken = "ccMTTilDS6GhYI7wQRG8Wi:APA91bG-k-WGv1IboFuDq0b8AOc3K_cZC42MN_gX6QKYZTzS6kkU0W289S5fTDqX193gIx8Y2T5g5Q_aLgW8MnkXEHlodL14ZCr65lKeDh1HDkh7dO7NaUk";
 
-    testPushNotification(
-      req.user.id,
-      "New Supplement Added",
-      `Your supplement "${name}" has been scheduled successfully.`,
-      { type: "SUPPLEMENT_CREATED", supplementId: supplements[0]._id }
-    );
 
 
     let dates = [];
@@ -216,6 +210,12 @@ export const createSupplement = async (req, res) => {
       supplements.push(supplement);
     }
 
+    testPushNotification(
+      req.user.id,
+      "New Supplement Added",
+      `Your supplement "${name}" has been scheduled successfully.`,
+      { type: "SUPPLEMENT_CREATED", supplementId: supplements[0]._id }
+    );
     // ✅ Send notification to user after creating supplements
     // await sendPushNotification(
     //   req.user.id,
