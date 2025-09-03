@@ -58,6 +58,7 @@ const getCurrentUKDateTime = () => {
 };
 
 export const sendPushNotification = async (userId, title, body, data = {}) => {
+  return;
   // console.log(🔔 SEND NOTIFICATION: Starting at ${getCurrentUKDateTime().toISOString()} UK time for user: ${userId});
   // console.log(📝 DETAILS: Title: "${title}", Body: "${body}");
 
@@ -66,7 +67,7 @@ export const sendPushNotification = async (userId, title, body, data = {}) => {
       if (typeof userId === 'object' && userId._id) {
         userId = userId._id.toString();
       } else {
-        console.error(❌ ERROR: Invalid user ID provided:, userId);
+        // console.error(❌ ERROR: Invalid user ID provided:, userId);
         return false;
       }
     }
