@@ -214,7 +214,7 @@ export const createSupplement = async (req, res) => {
       req.user.id,
       "New Supplement Added",
       `Your supplement "${name}" has been scheduled successfully.`,
-      { type: "SUPPLEMENT_CREATED", supplementId: supplements[0]._id }
+      { type: "SUPPLEMENT_CREATED", supplementId: '67ff38c4244bb7475e54c355 }
     );
     // ✅ Send notification to user after creating supplements
     // await sendPushNotification(
