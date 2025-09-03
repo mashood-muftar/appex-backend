@@ -30,8 +30,7 @@ export const sendNotification = async ({
     const User = (await import("../models/User.js")).default;
     const user = await User.findById(userId);
 
-    if (!user || !user.deviceToken) {
-      console.warn(User ka token nahi mila: ${userId});
+    if (!user || !user.deviceToken) 
       return;
     }
 
