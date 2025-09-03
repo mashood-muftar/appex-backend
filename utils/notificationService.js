@@ -142,7 +142,7 @@ export const sendTestNotification = async (userId) => {
 
 export const validateDeviceToken = async (userId, deviceToken) => {
   try {
-    console.log(🔍 VALIDATING TOKEN: For user ${userId} at ${getCurrentUKDateTime().toISOString()} UK time);
+    // console.log(🔍 VALIDATING TOKEN: For user ${userId} at ${getCurrentUKDateTime().toISOString()} UK time);
     const message = {
       data: { type: "VALIDATE_TOKEN", timestamp: String(Date.now()) },
       token: deviceToken,
@@ -150,10 +150,10 @@ export const validateDeviceToken = async (userId, deviceToken) => {
       android: { priority: "normal", ttl: 60, directBootOk: true },
     };
     const response = await admin.messaging().send(message);
-    console.log(✅ TOKEN VALID: Silent notification sent successfully);
+    // console.log(✅ TOKEN VALID: Silent notification sent successfully);
     return true;
   } catch (error) {
-    console.error(❌ TOKEN INVALID: Failed to validate device token:, error);
+    // console.error(❌ TOKEN INVALID: Failed to validate device token:, error);
     return false;
   }
 };
