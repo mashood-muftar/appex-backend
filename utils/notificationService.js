@@ -74,17 +74,17 @@ export const sendPushNotification = async (userId, title, body, data = {}) => {
 
     const user = await User.findById(userId);
     if (!user) {
-      console.error(❌ ERROR: User not found with ID: ${userId});
+      // console.error(❌ ERROR: User not found with ID: ${userId});
       return false;
     }
 
     if (!user.notificationSettings || !user.notificationSettings.pushEnabled) {
-      console.log(ℹ INFO: Push notifications disabled for user: ${userId});
+      // console.log(ℹ INFO: Push notifications disabled for user: ${userId});
       return false;
     }
 
     if (!user.deviceToken) {
-      console.log(ℹ INFO: No device token found for user: ${userId});
+      // console.log(ℹ INFO: No device token found for user: ${userId});
       return false;
     }
 
