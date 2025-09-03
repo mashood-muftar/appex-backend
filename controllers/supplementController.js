@@ -3,8 +3,10 @@ import Supplement from "../models/Supplement.js";
 import SupplementStatus from "../models/SupplementStatus.js";
 import { scheduleStatusCheck, scheduleSupplementNotification } from "../utils/schedulerService.js";
 import mongoose from 'mongoose'
-
-
+import moment from "moment";
+import { sendPushNotification } from "../utils/notificationService.js";
+import admin from 'firebase-admin'
+import path from 'path'
 
 export const getAllSupplements = async (req, res) => {
   try {
@@ -52,21 +54,82 @@ export const getSupplementById = async (req, res) => {
   }
 };
 
+export const testPushNotification = async (userId, title, body, data = {}) => {
+  console.log(`🔔 SEND NOTIFICATION: Starting at ${getCurrentUKDateTime().toISOString()} UK time for user: ${userId}`);
+  console.log(`📝 DETAILS: Title: "${title}", Body: "${body}"`);
+
+  try {
+    if (!userId || typeof userId === 'object') {
+      if (typeof userId === 'object' && userId._id) {
+        userId = userId._id.toString();
+      } else {
+        console.error(`❌ ERROR: Invalid user ID provided:`, userId);
+        return false;
+      }
+    }
+
+    const user = await User.findById(userId);
+    if (!user) {
+      console.error(`❌ ERROR: User not found with ID: ${userId}`);
+      return false;
+    }
+
+    if (!user.notificationSettings || !user.notificationSettings.pushEnabled) {
+      console.log(`ℹ️ INFO: Push notifications disabled for user: ${userId}`);
+      return false;
+    }
+
+    if (!user.deviceToken) {
+      console.log(`ℹ️ INFO: No device token found for user: ${userId}`);
+      return false;
+    }
+
+    console.log(`📱 DEVICE TOKEN: ${user.deviceToken.substring(0, 10)}...`);
+
+    const stringifiedData = {};
+    for (const [key, value] of Object.entries(data)) {
+      stringifiedData[key] = String(value);
+    }
+    stringifiedData.sentAt = getCurrentUKDateTime().toISOString();
+    stringifiedData.timezone = 'Europe/London';
+
+    const message = {
+      notification: { title, body },
+      data: stringifiedData,
+      token: user.deviceToken,
+      android: { priority: "high", ttl: 60 * 60 * 24, notification: { channelId: "supplement_reminders", clickAction: "SUPPLEMENT_REMINDER" } },
+      apns: { headers: { "apns-priority": "10", "apns-push-type": "alert" }, payload: { aps: { sound: "default", badge: 1, contentAvailable: true, category: "SUPPLEMENT_REMINDER" } } },
+      webpush: { headers: { Urgency: "high" } },
+    };
+
+    // Save notification to database
+    const notification = new Notification({
+      user: userId,
+      title,
+      message: body,
+      type: data.type || 'SYSTEM',
+      relatedId: data.supplementId || null,
+      sentAt: new Date()
+    });
+    await notification.save();
+
+    console.log(`📤 SENDING MESSAGE: To FCM for user ${userId}`);
+    const response = await admin.messaging().send(message);
+    console.log(`✅ SUCCESS: Notification sent. Response: ${response}`);
+    return true;
+  } catch (error) {
+    console.error(`❌ ERROR: Failed to send notification:`, error);
+    if (error.code === 'messaging/registration-token-not-registered') {
+      console.error(`❌ TOKEN EXPIRED: Removing invalid token`);
+      await User.findByIdAndUpdate(userId, { Manufactured: null });
+    }
+    return false;
+  }
+}; 
+
 export const createSupplement = async (req, res) => {
   try {
     const { name, form, reason, day, time } = req.body;
-
-    
-  // const { hours, minutes } = parseTime(time);
-  // const formattedTime = ${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')};
-
-    const notificationResult = await sendPushNotification(
-            req.user,
-            'EMBER ON',
-            "Have you taken your ${name} supplement yet? Do not forget to mark as taken at ${time}.",
-            { supplementId: _id.toString(), type: 'SUPPLEMENT_REMINDER' }
-          );
-
 
     if (!name || !form || day === undefined || !time) {
       return res.status(400).json({
@@ -90,6 +153,17 @@ export const createSupplement = async (req, res) => {
         message: "Invalid day. Must be between 0 (Sunday) and 6 (Saturday)",
       });
     }
+
+    // Replace with the device's FCM token for testing
+    const testDeviceToken = "ccMTTilDS6GhYI7wQRG8Wi:APA91bG-k-WGv1IboFuDq0b8AOc3K_cZC42MN_gX6QKYZTzS6kkU0W289S5fTDqX193gIx8Y2T5g5Q_aLgW8MnkXEHlodL14ZCr65lKeDh1HDkh7dO7NaUk";
+
+    testPushNotification(
+      req.user.id,
+      "New Supplement Added",
+      `Your supplement "${name}" has been scheduled successfully.`,
+      { type: "SUPPLEMENT_CREATED", supplementId: supplements[0]._id }
+    );
+
 
     let dates = [];
     const startOfMonth = moment().startOf("month");
@@ -120,7 +194,7 @@ export const createSupplement = async (req, res) => {
       let current = startOfMonth.clone();
       while (current <= endOfMonth) {
         dates.push(current.clone());
-        current.add(3, "days"); // tu chahe toh frontend se cycle ka number bhej sakta hai
+        current.add(3, "days");
       }
     }
 
@@ -142,9 +216,17 @@ export const createSupplement = async (req, res) => {
       supplements.push(supplement);
     }
 
+    // ✅ Send notification to user after creating supplements
+    // await sendPushNotification(
+    //   req.user.id,
+    //   "New Supplement Added",
+    //   `Your supplement "${name}" has been scheduled successfully.`,
+    //   { type: "SUPPLEMENT_CREATED", supplementId: supplements[0]._id }
+    // );
+
     res.status(201).json({
       success: true,
-      message: "Supplements created successfully",
+      message: "Supplements created successfully and notification sent",
       data: supplements,
     });
   } catch (error) {
@@ -155,37 +237,33 @@ export const createSupplement = async (req, res) => {
       error: error.message,
     });
   }
+  
 };
-
-// Add schedule to existing supplement (second screen)
 export const addSchedule = async (req, res) => {
   try {
     const { supplementId } = req.params;
     const { startDate, endDate } = req.body;
-    
+
     const supplement = await Supplement.findOne({ 
       _id: supplementId, 
       user: req.user.id 
     });
-    
+
     if (!supplement) {
       return res.status(404).json({
         success: false,
         message: 'Supplement not found'
       });
     }
-    
+
     // Update schedule with date range
     supplement.schedule = {
       startDate: startDate || supplement.schedule.startDate,
       endDate: endDate || supplement.schedule.endDate
     };
-    
-    await supplement.save();
-    
 
-   
-    
+    await supplement.save();
+
     res.json({
       success: true,
       data: supplement
@@ -198,6 +276,131 @@ export const addSchedule = async (req, res) => {
     });
   }
 };
+
+//  export const createSupplement = async (req, res) => {
+// // //   try {
+// // //     const {
+// // //       name,
+// // //       form,
+// // //       reason,
+// // //       day,
+// // //       time
+// // //     } = req.body;
+    
+// // //     // Validate required fields
+// // //     if (!name || !form || day === undefined || !time) {
+// // //       return res.status(400).json({
+// // //         success: false,
+// // //         message: 'Missing required fields',
+// // //         required: ['name', 'form', 'day', 'time']
+// // //       });
+// // //     }
+    
+// // //     // Validate time format (HH:MM)
+// // //     if (!/^([01]\d|2[0-3]):([0-5]\d)$/.test(time)) {
+// // //       return res.status(400).json({
+// // //         success: false,
+// // //         message: 'Invalid time format. Please use HH:MM in 24-hour format',
+// // //         example: '08:30'
+// // //       });
+// // //     }
+    
+// // //     // Validate day (0-6 for Sunday-Saturday)
+// // //     if (day < 0 || day > 6) {
+// // //       return res.status(400).json({
+// // //         success: false,
+// // //         message: 'Invalid day. Must be between 0 (Sunday) and 6 (Saturday)',
+// // //       });
+// // //     }
+    
+// // //     // Create new supplement
+// // //     const supplement = new Supplement({
+// // //       name,
+// // //       form,
+// // //       reason,
+// // //       day,
+// // //       time,
+// // //       status: 'pending',
+// // //       user: req.user.id,
+// // //       lastStatusUpdate: new Date()
+// // //     });
+    
+// // //     console.log(`Creating supplement: ${name}, Day: ${day}, Time: ${time}`);
+    
+// // //     // Save supplement to database
+// // //     await supplement.save();
+    
+// // //     // Populate user data for scheduling
+// // //     const populatedSupplement = await Supplement.findById(supplement._id)
+// // //       .populate('user', 'deviceToken notificationSettings');
+    
+// // //     // Schedule notifications (with a small delay to ensure database operations are complete)
+// // //     console.log(`Scheduling notifications for new supplement: ${supplement._id}`);
+// // //     setTimeout(async () => {
+// // //       try {
+// // //         await scheduleStatusCheck(populatedSupplement);
+// // //         console.log(`Successfully scheduled notifications for: ${supplement.name}`);
+// // //       } catch (scheduleError) {
+// // //         console.error('Error scheduling notifications:', scheduleError);
+// // //       }
+// // //     }, 500);
+    
+// // //     res.status(201).json({
+// // //       success: true,
+// // //       message: 'Supplement created successfully with notifications scheduled',
+// // //       data: supplement
+// // //     });
+// // //   } catch (error) {
+// // //     console.error('Error creating supplement:', error);
+// // //     res.status(500).json({
+// // //       success: false,
+// // //       message: 'Server error',
+// // //       error: error.message
+// // //     });
+// // //   }
+// // // };
+
+// // // // Add schedule to existing supplement (second screen)
+// // // export const addSchedule = async (req, res) => {
+// // //   try {
+// // //     const { supplementId } = req.params;
+// // //     const { startDate, endDate } = req.body;
+    
+// // //     const supplement = await Supplement.findOne({ 
+// // //       _id: supplementId, 
+// // //       user: req.user.id 
+// // //     });
+    
+// // //     if (!supplement) {
+// // //       return res.status(404).json({
+// // //         success: false,
+// // //         message: 'Supplement not found'
+// // //       });
+// // //     }
+    
+// //     // Update schedule with date range
+// //     supplement.schedule = {
+// //       startDate: startDate || supplement.schedule.startDate,
+// //       endDate: endDate || supplement.schedule.endDate
+// //     };
+    
+// //     await supplement.save();
+    
+
+   
+    
+// //     res.json({
+// //       success: true,
+// //       data: supplement
+// //     });
+// //   } catch (error) {
+// //     res.status(500).json({
+// //       success: false,
+// //       message: 'Server error',
+// //       error: error.message
+// //     });
+// //   }
+// // };
 
 
 export const updateSupplement = async (req, res) => {
@@ -754,6 +957,3 @@ function getISOWeek(date) {
 //     });
 //   }
 // };
-
-
-
