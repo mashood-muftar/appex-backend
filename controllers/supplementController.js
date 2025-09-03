@@ -7,6 +7,7 @@ import moment from "moment";
 import { sendPushNotification } from "../utils/notificationService.js";
 import admin from 'firebase-admin'
 import path from 'path'
+import User from "../models/User.js";
 
 export const getAllSupplements = async (req, res) => {
   try {
