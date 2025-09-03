@@ -58,8 +58,8 @@ const getCurrentUKDateTime = () => {
 };
 
 export const sendPushNotification = async (userId, title, body, data = {}) => {
-  console.log(🔔 SEND NOTIFICATION: Starting at ${getCurrentUKDateTime().toISOString()} UK time for user: ${userId});
-  console.log(📝 DETAILS: Title: "${title}", Body: "${body}");
+  // console.log(🔔 SEND NOTIFICATION: Starting at ${getCurrentUKDateTime().toISOString()} UK time for user: ${userId});
+  // console.log(📝 DETAILS: Title: "${title}", Body: "${body}");
 
   try {
     if (!userId || typeof userId === 'object') {
