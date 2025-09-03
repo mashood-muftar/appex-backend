@@ -8,6 +8,8 @@ import { sendPushNotification } from "../utils/notificationService.js";
 import admin from 'firebase-admin'
 import path from 'path'
 import User from "../models/User.js";
+import Notification from "../models/Notification.js";
+
 
 const getCurrentUKDateTime = () => {
   return new Date(new Date().toLocaleString('en-US', { timeZone: 'Europe/London' }));
