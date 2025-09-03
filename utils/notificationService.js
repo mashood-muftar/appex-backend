@@ -30,9 +30,9 @@ export const sendNotification = async ({
     const User = (await import("../models/User.js")).default;
     const user = await User.findById(userId);
 
-    // if (!user || !user.deviceToken) 
-    //   return;
-    // }
+    if (!user || !user.deviceToken){ 
+      return;
+    }
 
     const payload = {
       token: user.deviceToken,
