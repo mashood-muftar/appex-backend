@@ -9,6 +9,10 @@ import admin from 'firebase-admin'
 import path from 'path'
 import User from "../models/User.js";
 
+const getCurrentUKDateTime = () => {
+  return new Date(new Date().toLocaleString('en-US', { timeZone: 'Europe/London' }));
+};
+
 export const getAllSupplements = async (req, res) => {
   try {
     // Get all supplements for the authenticated user
