@@ -157,4 +157,3 @@ export const validateDeviceToken = async (userId, deviceToken) => {
     return false;
   }
 };
-notification.service.js
