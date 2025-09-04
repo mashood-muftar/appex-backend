@@ -274,6 +274,8 @@ export const createSupplement = async (req, res) => {
       });
     }
 
+    console.log('>>>>>>>>>>>>>>>>>>>>>>>>>. ', reason);
+
     let supplements = [];
 
     if (reason === "Every day") {
