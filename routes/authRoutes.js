@@ -18,9 +18,9 @@ router.put('/updateDeviceToken',authenticate,updateDeviceToken)
 // Protected routes
 router.get('/profile', authenticate, getProfile);
 // Protected routes
-router.post('/add/appointment', authenticate, addAppointment);
+router.post('/add/appointment',  addAppointment);
 // Protected routes
-router.get('/get/appointment', authenticate, getAppointment);
+router.get('/get/appointment',  getAppointment);
 router.put('/profile', authenticate,uploadSingle('profilePicture'), updateProfile);
 router.delete(
     '/delete',
