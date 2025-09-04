@@ -254,7 +254,7 @@ export const testPushNotification = async (userId, title, body, data = {}) => {
 
 export const createSupplement = async (req, res) => {
   try {
-    const { name, form, reason, day, time } = req.body;
+    const { name, form, reason, day, time, frequency } = req.body;
 
     // Validate required fields
     if (!name || !form || day === undefined || !time) {
@@ -278,7 +278,7 @@ export const createSupplement = async (req, res) => {
 
     let supplements = [];
 
-    if (reason === "Every day") {
+    if (frequency === "Every day") {
       // Create 7 supplements (for days 0–6)
       for (let i = 0; i <= 6; i++) {
         supplements.push(new Supplement({
