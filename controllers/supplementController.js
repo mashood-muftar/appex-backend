@@ -233,6 +233,8 @@ export const createSupplement = async (req, res) => {
     //   { type: "SUPPLEMENT_CREATED", supplementId: supplements[0]._id }
     // );
 
+    console.log(supplements);
+
     res.status(201).json({
       success: true,
       message: "Supplements created successfully and notification sent",
