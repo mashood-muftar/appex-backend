@@ -251,16 +251,11 @@ export const testPushNotification = async (userId, title, body, data = {}) => {
   
 // };
 
+
 export const createSupplement = async (req, res) => {
   try {
-    const {
-      name,
-      form,
-      reason,
-      day,
-      time
-    } = req.body;
-    
+    const { name, form, reason, day, time } = req.body;
+
     // Validate required fields
     if (!name || !form || day === undefined || !time) {
       return res.status(400).json({
@@ -269,8 +264,8 @@ export const createSupplement = async (req, res) => {
         required: ['name', 'form', 'day', 'time']
       });
     }
-    
-    // Validate time format (HH:MM)
+
+    // Validate time format (HH:MM in 24h)
     if (!/^([01]\d|2[0-3]):([0-5]\d)$/.test(time)) {
       return res.status(400).json({
         success: false,
@@ -278,52 +273,63 @@ export const createSupplement = async (req, res) => {
         example: '08:30'
       });
     }
-    
-    // Validate day (0-6 for Sunday-Saturday)
-    if (day < 0 || day > 6) {
-      return res.status(400).json({
-        success: false,
-        message: 'Invalid day. Must be between 0 (Sunday) and 6 (Saturday)',
-      });
-    }
-    
-    // Create new supplement
-    const supplement = new Supplement({
-      name,
-      form,
-      reason,
-      day,
-      time,
-      status: 'pending',
-      user: req.user.id,
-      lastStatusUpdate: new Date()
-    });
-    
-    console.log(`Creating supplement: ${name}, Day: ${day}, Time: ${time}`);
-    
-    // Save supplement to database
-    await supplement.save();
-    
-    // Populate user data for scheduling
-    const populatedSupplement = await Supplement.findById(supplement._id)
-      .populate('user', 'deviceToken notificationSettings');
-    
-    // Schedule notifications (with a small delay to ensure database operations are complete)
-    console.log(`Scheduling notifications for new supplement: ${supplement._id}`);
-    setTimeout(async () => {
-      try {
-        await scheduleStatusCheck(populatedSupplement);
-        console.log(`Successfully scheduled notifications for: ${supplement.name}`);
-      } catch (scheduleError) {
-        console.error('Error scheduling notifications:', scheduleError);
+
+    let supplements = [];
+
+    if (reason === "Every day") {
+      // Create 7 supplements (for days 0–6)
+      for (let i = 0; i <= 6; i++) {
+        supplements.push(new Supplement({
+          name,
+          form,
+          reason,
+          day: i,
+          time,
+          status: 'pending',
+          user: req.user.id,
+          lastStatusUpdate: new Date()
+        }));
       }
-    }, 500);
-    
+    } else {
+      // Normal single supplement
+      supplements.push(new Supplement({
+        name,
+        form,
+        reason,
+        day,
+        time,
+        status: 'pending',
+        user: req.user.id,
+        lastStatusUpdate: new Date()
+      }));
+    }
+
+    // Save all supplements in bulk
+    const savedSupplements = await Supplement.insertMany(supplements);
+
+    // Optionally schedule notifications for each
+    for (let supp of savedSupplements) {
+      const populatedSupplement = await Supplement.findById(supp._id)
+        .populate('user', 'deviceToken notificationSettings');
+
+      setTimeout(async () => {
+        try {
+          await scheduleStatusCheck(populatedSupplement);
+          console.log(`Scheduled notifications for: ${populatedSupplement.name} (Day ${populatedSupplement.day})`);
+        } catch (err) {
+          console.error('Error scheduling notifications:', err);
+        }
+      }, 500);
+    }
+
     res.status(201).json({
       success: true,
-      message: 'Supplement created successfully with notifications scheduled',
-      data: supplement
+      message: reason === "Every day" 
+        ? 'Supplements for all days created successfully'
+        : 'Supplement created successfully',
+      data: savedSupplements
     });
+
   } catch (error) {
     console.error('Error creating supplement:', error);
     res.status(500).json({
@@ -333,6 +339,90 @@ export const createSupplement = async (req, res) => {
     });
   }
 };
+
+
+// export const createSupplement = async (req, res) => {
+//   try {
+//     const {
+//       name,
+//       form,
+//       reason,
+//       day,
+//       time
+//     } = req.body;
+    
+//     // Validate required fields
+//     if (!name || !form || day === undefined || !time) {
+//       return res.status(400).json({
+//         success: false,
+//         message: 'Missing required fields',
+//         required: ['name', 'form', 'day', 'time']
+//       });
+//     }
+    
+//     // Validate time format (HH:MM)
+//     if (!/^([01]\d|2[0-3]):([0-5]\d)$/.test(time)) {
+//       return res.status(400).json({
+//         success: false,
+//         message: 'Invalid time format. Please use HH:MM in 24-hour format',
+//         example: '08:30'
+//       });
+//     }
+    
+//     // Validate day (0-6 for Sunday-Saturday)
+//     if (day < 0 || day > 6) {
+//       return res.status(400).json({
+//         success: false,
+//         message: 'Invalid day. Must be between 0 (Sunday) and 6 (Saturday)',
+//       });
+//     }
+    
+//     // Create new supplement
+//     const supplement = new Supplement({
+//       name,
+//       form,
+//       reason,
+//       day,
+//       time,
+//       status: 'pending',
+//       user: req.user.id,
+//       lastStatusUpdate: new Date()
+//     });
+    
+//     console.log(`Creating supplement: ${name}, Day: ${day}, Time: ${time}`);
+    
+//     // Save supplement to database
+//     await supplement.save();
+    
+//     // Populate user data for scheduling
+//     const populatedSupplement = await Supplement.findById(supplement._id)
+//       .populate('user', 'deviceToken notificationSettings');
+    
+//     // Schedule notifications (with a small delay to ensure database operations are complete)
+//     console.log(`Scheduling notifications for new supplement: ${supplement._id}`);
+//     setTimeout(async () => {
+//       try {
+//         await scheduleStatusCheck(populatedSupplement);
+//         console.log(`Successfully scheduled notifications for: ${supplement.name}`);
+//       } catch (scheduleError) {
+//         console.error('Error scheduling notifications:', scheduleError);
+//       }
+//     }, 500);
+    
+//     res.status(201).json({
+//       success: true,
+//       message: 'Supplement created successfully with notifications scheduled',
+//       data: supplement
+//     });
+//   } catch (error) {
+//     console.error('Error creating supplement:', error);
+//     res.status(500).json({
+//       success: false,
+//       message: 'Server error',
+//       error: error.message
+//     });
+//   }
+// };
 
 
 export const addSchedule = async (req, res) => {
