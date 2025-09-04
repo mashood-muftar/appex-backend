@@ -15,8 +15,8 @@ export const addAppointment = async (req, res) => {
     if (!title || !date || !time) {
       return res.status(400).json({ success: false, message: "Title, date and time are required" });
     }
-    // const appointment = new Appointment({ user: req.user._id, title, description, date, time, location });
-    const appointment = new Appointment({ title, description, date, time, location });
+    const appointment = new Appointment({ user: req.user._id, title, description, date, time, location });
+    // const appointment = new Appointment({ title, description, date, time, location });
     await appointment.save();
     res.status(201).json({ success: true, data: appointment });
   } catch (err) {
