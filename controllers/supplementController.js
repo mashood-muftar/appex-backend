@@ -219,12 +219,12 @@ export const createSupplement = async (req, res) => {
       supplements.push(supplement);
     }
 
-    testPushNotification(
-      req.user.id,
-      "New Supplement Added",
-      `Your supplement "${name}" has been scheduled successfully.`,
-      { type: "SUPPLEMENT_REMINDER", supplementId: '67ff38c4244bb7475e54c355' }
-    );
+    // testPushNotification(
+    //   req.user.id,
+    //   "New Supplement Added",
+    //   `Your supplement "${name}" has been scheduled successfully.`,
+    //   { type: "SUPPLEMENT_REMINDER", supplementId: '67ff38c4244bb7475e54c355' }
+    // );
     // ✅ Send notification to user after creating supplements
     // await sendPushNotification(
     //   req.user.id,
