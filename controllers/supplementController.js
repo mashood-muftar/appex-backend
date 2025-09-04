@@ -274,7 +274,7 @@ export const createSupplement = async (req, res) => {
       });
     }
 
-    console.log('>>>>>>>>>>>>>>>>>>>>>>>>>. ', reason);
+    console.log('>>>>>>>>>>>>>>>>>>>>>>>>>. ', req.body);
 
     let supplements = [];
 
