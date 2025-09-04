@@ -2,7 +2,7 @@
 import express from 'express';
 
 import { authenticate } from '../middleware/authMiddleware.js';
-import { getProfile, login, register, updateProfile, registerWithInvitation, updateDeviceToken, deleteUser, verifyEmail, resendOTP } from '../controllers/authController.js';
+import { getProfile, login, register, updateProfile, registerWithInvitation, updateDeviceToken, deleteUser, verifyEmail, resendOTP,addAppointment,getAppointment } from '../controllers/authController.js';
 import { uploadSingle } from '../middleware/upload.js';
 
 const router = express.Router();
@@ -17,6 +17,10 @@ router.put('/updateDeviceToken',authenticate,updateDeviceToken)
 
 // Protected routes
 router.get('/profile', authenticate, getProfile);
+// Protected routes
+router.get('/add/appointment', authenticate, addAppointment);
+// Protected routes
+router.get('/get/appointment', authenticate, getAppointment);
 router.put('/profile', authenticate,uploadSingle('profilePicture'), updateProfile);
 router.delete(
     '/delete',
