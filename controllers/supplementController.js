@@ -136,120 +136,205 @@ export const testPushNotification = async (userId, title, body, data = {}) => {
   }
 }; 
 
+// export const createSupplement = async (req, res) => {
+//   try {
+//     const { name, form, reason, day, time } = req.body;
+
+//     if (!name || !form || day === undefined || !time) {
+//       return res.status(400).json({
+//         success: false,
+//         message: "Missing required fields",
+//         required: ["name", "form", "day", "time"],
+//       });
+//     }
+
+//     if (!/^([01]\d|2[0-3]):([0-5]\d)$/.test(time)) {
+//       return res.status(400).json({
+//         success: false,
+//         message: "Invalid time format. Please use HH:MM in 24-hour format",
+//         example: "08:30",
+//       });
+//     }
+
+//     if (day < 0 || day > 6) {
+//       return res.status(400).json({
+//         success: false,
+//         message: "Invalid day. Must be between 0 (Sunday) and 6 (Saturday)",
+//       });
+//     }
+
+//     // Replace with the device's FCM token for testing
+//     const testDeviceToken = "dGKOc8F_Q1OOkjPOHOX7YN:APA91bEnUQW0l__CMpHIi3tR6HQKAC9g38tBBQDJusXsej8i9v1E2mbGXo5d1DBVN4IfccuISFH1VqUZoKh35T_hs_5Dqyls7HwVNd-gNrzgF-fvfewp92M";
+
+
+
+//     let dates = [];
+//     const startOfMonth = moment().startOf("month");
+//     const endOfMonth = moment().endOf("month");
+
+//     if (reason === "Every day") {
+//       let current = startOfMonth.clone();
+//       while (current <= endOfMonth) {
+//         dates.push(current.clone());
+//         current.add(1, "day");
+//       }
+//     } else if (reason === "Every other day") {
+//       let current = startOfMonth.clone();
+//       while (current <= endOfMonth) {
+//         dates.push(current.clone());
+//         current.add(2, "days");
+//       }
+//     } else if (reason === "Specific days of the week") {
+//       let current = startOfMonth.clone();
+//       while (current <= endOfMonth) {
+//         if (current.day() === day) {
+//           dates.push(current.clone());
+//         }
+//         current.add(1, "day");
+//       }
+//     } else if (reason === "On a recurring cycle") {
+//       // Example: every 3 days
+//       let current = startOfMonth.clone();
+//       while (current <= endOfMonth) {
+//         dates.push(current.clone());
+//         current.add(3, "days");
+//       }
+//     }
+
+//     // Ab supplements DB me save karo
+//     const supplements = [];
+//     for (let d of dates) {
+//       const supplement = new Supplement({
+//         name,
+//         form,
+//         reason,
+//         day,
+//         time,
+//         scheduleDate: d.format("YYYY-MM-DD"),
+//         status: "pending",
+//         user: req.user.id,
+//         lastStatusUpdate: new Date(),
+//       });
+//       await supplement.save();
+//       supplements.push(supplement);
+//     }
+
+//     // testPushNotification(
+//     //   req.user.id,
+//     //   "New Supplement Added",
+//     //   `Your supplement "${name}" has been scheduled successfully.`,
+//     //   { type: "SUPPLEMENT_REMINDER", supplementId: '67ff38c4244bb7475e54c355' }
+//     // );
+//     // ✅ Send notification to user after creating supplements
+//     // await sendPushNotification(
+//     //   req.user.id,
+//     //   "New Supplement Added",
+//     //   `Your supplement "${name}" has been scheduled successfully.`,
+//     //   { type: "SUPPLEMENT_CREATED", supplementId: supplements[0]._id }
+//     // );
+
+//     console.log(supplements);
+
+//     res.status(201).json({
+//       success: true,
+//       message: "Supplements created successfully and notification sent",
+//       data: supplements,
+//     });
+//   } catch (error) {
+//     console.error("Error creating supplement:", error);
+//     res.status(500).json({
+//       success: false,
+//       message: "Server error",
+//       error: error.message,
+//     });
+//   }
+  
+// };
+
 export const createSupplement = async (req, res) => {
   try {
-    const { name, form, reason, day, time } = req.body;
-
+    const {
+      name,
+      form,
+      reason,
+      day,
+      time
+    } = req.body;
+    
+    // Validate required fields
     if (!name || !form || day === undefined || !time) {
       return res.status(400).json({
         success: false,
-        message: "Missing required fields",
-        required: ["name", "form", "day", "time"],
+        message: 'Missing required fields',
+        required: ['name', 'form', 'day', 'time']
       });
     }
-
+    
+    // Validate time format (HH:MM)
     if (!/^([01]\d|2[0-3]):([0-5]\d)$/.test(time)) {
       return res.status(400).json({
         success: false,
-        message: "Invalid time format. Please use HH:MM in 24-hour format",
-        example: "08:30",
+        message: 'Invalid time format. Please use HH:MM in 24-hour format',
+        example: '08:30'
       });
     }
-
+    
+    // Validate day (0-6 for Sunday-Saturday)
     if (day < 0 || day > 6) {
       return res.status(400).json({
         success: false,
-        message: "Invalid day. Must be between 0 (Sunday) and 6 (Saturday)",
+        message: 'Invalid day. Must be between 0 (Sunday) and 6 (Saturday)',
       });
     }
-
-    // Replace with the device's FCM token for testing
-    const testDeviceToken = "dGKOc8F_Q1OOkjPOHOX7YN:APA91bEnUQW0l__CMpHIi3tR6HQKAC9g38tBBQDJusXsej8i9v1E2mbGXo5d1DBVN4IfccuISFH1VqUZoKh35T_hs_5Dqyls7HwVNd-gNrzgF-fvfewp92M";
-
-
-
-    let dates = [];
-    const startOfMonth = moment().startOf("month");
-    const endOfMonth = moment().endOf("month");
-
-    if (reason === "Every day") {
-      let current = startOfMonth.clone();
-      while (current <= endOfMonth) {
-        dates.push(current.clone());
-        current.add(1, "day");
+    
+    // Create new supplement
+    const supplement = new Supplement({
+      name,
+      form,
+      reason,
+      day,
+      time,
+      status: 'pending',
+      user: req.user.id,
+      lastStatusUpdate: new Date()
+    });
+    
+    console.log(`Creating supplement: ${name}, Day: ${day}, Time: ${time}`);
+    
+    // Save supplement to database
+    await supplement.save();
+    
+    // Populate user data for scheduling
+    const populatedSupplement = await Supplement.findById(supplement._id)
+      .populate('user', 'deviceToken notificationSettings');
+    
+    // Schedule notifications (with a small delay to ensure database operations are complete)
+    console.log(`Scheduling notifications for new supplement: ${supplement._id}`);
+    setTimeout(async () => {
+      try {
+        await scheduleStatusCheck(populatedSupplement);
+        console.log(`Successfully scheduled notifications for: ${supplement.name}`);
+      } catch (scheduleError) {
+        console.error('Error scheduling notifications:', scheduleError);
       }
-    } else if (reason === "Every other day") {
-      let current = startOfMonth.clone();
-      while (current <= endOfMonth) {
-        dates.push(current.clone());
-        current.add(2, "days");
-      }
-    } else if (reason === "Specific days of the week") {
-      let current = startOfMonth.clone();
-      while (current <= endOfMonth) {
-        if (current.day() === day) {
-          dates.push(current.clone());
-        }
-        current.add(1, "day");
-      }
-    } else if (reason === "On a recurring cycle") {
-      // Example: every 3 days
-      let current = startOfMonth.clone();
-      while (current <= endOfMonth) {
-        dates.push(current.clone());
-        current.add(3, "days");
-      }
-    }
-
-    // Ab supplements DB me save karo
-    const supplements = [];
-    for (let d of dates) {
-      const supplement = new Supplement({
-        name,
-        form,
-        reason,
-        day,
-        time,
-        scheduleDate: d.format("YYYY-MM-DD"),
-        status: "pending",
-        user: req.user.id,
-        lastStatusUpdate: new Date(),
-      });
-      await supplement.save();
-      supplements.push(supplement);
-    }
-
-    // testPushNotification(
-    //   req.user.id,
-    //   "New Supplement Added",
-    //   `Your supplement "${name}" has been scheduled successfully.`,
-    //   { type: "SUPPLEMENT_REMINDER", supplementId: '67ff38c4244bb7475e54c355' }
-    // );
-    // ✅ Send notification to user after creating supplements
-    // await sendPushNotification(
-    //   req.user.id,
-    //   "New Supplement Added",
-    //   `Your supplement "${name}" has been scheduled successfully.`,
-    //   { type: "SUPPLEMENT_CREATED", supplementId: supplements[0]._id }
-    // );
-
-    console.log(supplements);
-
+    }, 500);
+    
     res.status(201).json({
       success: true,
-      message: "Supplements created successfully and notification sent",
-      data: supplements,
+      message: 'Supplement created successfully with notifications scheduled',
+      data: supplement
     });
   } catch (error) {
-    console.error("Error creating supplement:", error);
+    console.error('Error creating supplement:', error);
     res.status(500).json({
       success: false,
-      message: "Server error",
-      error: error.message,
+      message: 'Server error',
+      error: error.message
     });
   }
-  
 };
+
+
 export const addSchedule = async (req, res) => {
   try {
     const { supplementId } = req.params;
