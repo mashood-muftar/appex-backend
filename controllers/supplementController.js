@@ -19,7 +19,7 @@ export const getAllSupplements = async (req, res) => {
   try {
     // Get all supplements for the authenticated user
     const supplements = await Supplement.find({ user: req.user.id });
-    
+    console.log('getAllSupplements');
     res.json({
       success: true,
       count: supplements.length,
@@ -40,6 +40,8 @@ export const getSupplementById = async (req, res) => {
       _id: req.params.id,
       user: req.user.id
     });
+
+    console.log('getSupplementById');
     
     if (!supplement) {
       return res.status(404).json({
@@ -471,6 +473,9 @@ export const getTodaysSupplements = async (req, res) => {
     const currentDay = today.getDay(); // 0-6 representing Sunday-Saturday
     const currentDate = new Date(today.getFullYear(), today.getMonth(), today.getDate());
 
+    
+    console.log('getTodaysSupplements');
+    
     // Build query to find supplements for today
     const query = {
       user: req.user.id,
@@ -522,6 +527,9 @@ export const getTodaysSupplements = async (req, res) => {
 
 export const getTodaySupplements = async (req, res) => {
   try {
+    
+    console.log('getTodaySupplements');
+    
     // Make sure we have a valid user ID
     if (!req.user || !req.user.id) {
       return res.status(401).json({
@@ -604,6 +612,7 @@ export const getSupplementsByDay = async (req, res) => {
     const { day } = req.params; // day should be 0-6 representing Sunday-Saturday
     const dayNum = parseInt(day);
     
+    console.log('getSupplementsByDay');
     if (isNaN(dayNum) || dayNum < 0 || dayNum > 6) {
       return res.status(400).json({
         success: false,
