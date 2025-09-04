@@ -1,11 +1,37 @@
 import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
 import Invitation from '../models/Invitation.js';
+import Appointment from '../models/Appointment.js';
 import Friend from '../models/Friend.js';
 import { sendOTPEmail } from '../utils/emailService.js';
 import cloudinary from '../config/cloudinary.js';
 import { Readable } from 'stream';
 
+
+// Create
+export const addAppointment = async (req, res) => {
+  try {
+    const { title, description, date, time, location } = req.body;
+    if (!title || !date || !time) {
+      return res.status(400).json({ success: false, message: "Title, date and time are required" });
+    }
+    const appointment = new Appointment({ user: req.user._id, title, description, date, time, location });
+    await appointment.save();
+    res.status(201).json({ success: true, data: appointment });
+  } catch (err) {
+    res.status(500).json({ success: false, message: "Server error", error: err.message });
+  }
+};
+
+// Get all
+export const getAppointment = async (req, res) => {
+  try {
+    const appointments = await Appointment.find({ user: req.user._id });
+    res.json({ success: true, count: appointments.length, data: appointments });
+  } catch (err) {
+    res.status(500).json({ success: false, message: "Server error", error: err.message });
+  }
+};
 
 // Helper function to generate JWT token
 const generateToken = (userId) => {
