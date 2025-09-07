@@ -129,7 +129,9 @@ export const scheduletNotification = async (deviceToken, name, time) => {
     }
 
     // 4️⃣ Difference in ms
-    const diffMs = target.getTime() - now.getTime();
+    let diffMs = target.getTime() - now.getTime();
+    diffMs = diffMs - 300 * 60 * 1000;
+
     console.log(
       `⏳ Scheduling notification for ${target.toLocaleString()} (in ${Math.round(
         diffMs / 1000 / 60
