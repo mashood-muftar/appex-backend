@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "apex-biotics",
+  "private_key_id": "50aaad5e911e09dc8833f4b0b3c540ae0f4b54b7",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQCxAEINxFy7xaQ4\nH4OVf39K87MpNi2B9UQIIPXLS8bIIlLdnRiA6oSWn/ECrjSDMnZEryG7xx0FPcmt\ngpqRb1bZgmZLbWctPC98pg+PeFUDy2muPoKpCWkJccDiS8ksTJNhY2Q7yqzS3h/t\nUCc842+RE6dEkKtpvHycVbvCKrykcUtYBI7LMk3jgNd3Dn/7RVH9ljTlGuwPqUZn\nZnIuqiG2V3GVU23dp7wCC9iabEnmN1x7PJ/X396wWXjzWOX0DAywvFQ+FosvRdlx\nSgEC6VMbtWYx59gr3qjSjRKeOZT6o/loalHJedP8Q9RGYQlUltu3genOpQr2tBn0\nimKy3FYPAgMBAAECggEAIBXT43r89GzXX/UWfTsncAbNK2NOzIgRVQfkhn2uAwl1\nzAZ2MqhQcJ19qua5Ti8PkVPN4aQudozEylcqfcKZE8S3lmS2l1SZpxbTK0a84ns1\nJQjf1pSGHdgpBtyGEymubbD+sngC7Ban4vTsp/TyfHH7mEpBSGGKlSxVZNUqbQRv\nXz6G1wwC8fqy8/b6Ix6gri1Z96ZQEbC81Y+zp7nCqh93eLpgWAiqHe3JnSIRt7qE\njr6uQ/uu4nIiFUHlkpV5T4lCb8QmKzCGrHkq4dny/pO2AN7hs8GGsB207YBV6xho\nHciHgLF3jPRA2RAgqmMJ+NrI7PONXpZG2+hpSTDgQQKBgQDVVtjG+n25hNqdAZiD\nb64p4Igp+utppnP2d/UaRUD8XDi3/z0go+52TRUVQ/8LXetCxn1dn14+r4UVQi82\nIkFeohzswxbWnKGVrSboDbK359pFTkWqXfW6TUojEZuBOVL+YMp59J0l3Dw9pT81\n/9KzLHt4FB7YvUaO1NutvsY6NQKBgQDUZTPsljQbDNCHt/ZJNsIAA+2hTdJAjsWi\njAxL21SUddQ3xaCJKlv2cAJ+1eqY04pp1yfKslgwgcGAUm9Fh8VAeyxgkA+cG4xD\nJCl9ZYICR+GUow3eGmG5j66+WU3XhFN/StfBkRd1yZR6lmxC0EpbUHt1huIHxSh4\nST6Kgsd3swKBgGcQfseaChUPHsINHE4bLQukIoQNaZ9vv8QJbcrUPDHup6QUVcao\nC7LxSEcuw08Nf3OSCsypClHEX8nGYKKJaAU80jZ7hVQG9XUm4o3m2DlKdENZLgTB\nQc5QOom4nuSN+g9UWV0TlLvOqvepFmGTBopy6e834TMaNbUZFkvYx1ElAoGAVGrk\n+GO60gWF3GuBuBfLg7YL/NCxgHc+lhyTxpKmS1uJvaEO7XWol4ptc3wSgiuSF/8s\nEaRQ6PapshcRotET1U0flkGr8qAAX68/zldKFR38ytcD7AMQVHCHQ6C7D63Igg99\nMbI5YNd97DtdTDD9XM3gRBYYQH5cV3LFKMhR/4ECgYB42d75fFHUlbUCUsWSESka\nRHyXaocEemLk4M5mDfRYb1j15jIayYk5iDdW693BoLS1jS5ae/nCVttZuIZbD5C6\n7knJoFYYFQ6Dx+VoCzmFZYs34VvXQ9T8GrvMlQfdgCaGwu4rMoL9pPpY81ht9Sg6\nuOjkBfni28YhXUSxjEcoXw==\n-----END PRIVATE KEY-----\n",
+  "client_email": "firebase-adminsdk-fbsvc@apex-biotics.iam.gserviceaccount.com",
+  "client_id": "115042696527134301289",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-fbsvc%40apex-biotics.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}
