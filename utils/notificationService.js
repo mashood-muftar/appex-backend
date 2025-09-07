@@ -8,16 +8,16 @@ import path from "path";
 // import admin from "firebase-admin";
 // import serviceAccount from "../config/firebaseServiceAccountKey.json"; // apni file ka path sahi rakho
 
-if (!admin.apps.length) {
+// if (!admin.apps.length) {
   // admin.initializeApp({
   //   credential: admin.credential.cert(serviceAccount),
   // });
   // admin.initializeApp({
   //     credential: admin.credential.cert(path.join('apex-biotics-firebase-adminsdk-fbsvc-19a4b06da4.json')),
   //   });
-}
+// }
 
-const messaging = admin.messaging();
+// const messaging = admin.messaging();
 
 export const sendNotification = async ({
   userId,
