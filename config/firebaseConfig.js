@@ -6,9 +6,9 @@ const serviceAccount = JSON.parse(
 );
 
 if (!admin.apps.length) {
-  admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount),
-  });
+  // admin.initializeApp({
+  //   credential: admin.credential.cert(serviceAccount),
+  // });
   console.log("✅ Firebase Admin initialized successfully");
 }
 
