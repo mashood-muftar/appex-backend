@@ -5,7 +5,7 @@ import fs from "fs";
 
 if (!admin.apps.length) {
   const serviceAccount = JSON.parse(
-    fs.readFileSync(path.resolve("firebase-service-account.json"), "utf8")
+    fs.readFileSync(path.resolve("apex-biotics-firebase-adminsdk-fbsvc-19a4b06da4.json"), "utf8")
   );
 
   admin.initializeApp({
