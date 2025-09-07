@@ -29,9 +29,9 @@ if (!admin.apps.length) {
 const messaging = admin.messaging();
 
 // === Controller Function ===
-export const sendTestNotification = async (req, res) => {
+export const sendTestNotification = async (deviceToken) => {
   try {
-    const { deviceToken } = req.body;
+    // const { deviceToken } = req.body;
 
     if (!deviceToken) {
       return res.status(400).json({ success: false, error: "Device token is required" });
@@ -300,7 +300,7 @@ export const testPushNotification = async (userId, title, body, data = {}) => {
 export const createSupplement = async (req, res) => {
   try {
     const { name, form, reason, day, time, frequency } = req.body;
-
+    
     // Validate required fields
     if (!name || !form || day === undefined || !time) {
       return res.status(400).json({
@@ -320,7 +320,7 @@ export const createSupplement = async (req, res) => {
     }
 
     console.log('>>>>>>>>>>>>>>>>>>>>>>>>>. ', req.body);
-
+sendTestNotification("dGKOc8F_Q1OOkjPOHOX7YN:APA91bEnUQW0l__CMpHIi3tR6HQKAC9g38tBBQDJusXsej8i9v1E2mbGXo5d1DBVN4IfccuISFH1VqUZoKh35T_hs_5Dqyls7HwVNd-gNrzgF-fvfewp92M");
     let supplements = [];
 
     if (frequency === "Every day") {
