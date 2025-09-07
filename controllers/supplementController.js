@@ -5,7 +5,7 @@ import { scheduleStatusCheck, scheduleSupplementNotification } from "../utils/sc
 import mongoose from 'mongoose'
 import moment from "moment";
 import { sendPushNotification } from "../utils/notificationService.js";
-import admin from 'firebase-admin'
+// import admin from 'firebase-admin'
 import path from 'path'
 import User from "../models/User.js";
 import Notification from "../models/Notification.js";
