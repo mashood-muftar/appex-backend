@@ -11,6 +11,7 @@ import User from "../models/User.js";
 import Notification from "../models/Notification.js";
 // import admin from "../utils/firebase.js";
 import admin from "firebase-admin";
+import fs from "fs";
 
 // === Firebase Admin Setup (inline here) ===
 const keyPath = path.resolve("./apex-biotics-50aaad5e911e.json"); // adjust if needed
