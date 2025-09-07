@@ -3,6 +3,8 @@ import express from 'express';
 
 import { authenticate } from '../middleware/authMiddleware.js';
 import { getProfile, login, register, updateProfile, registerWithInvitation, updateDeviceToken, deleteUser, verifyEmail, resendOTP,addAppointment,getAppointment } from '../controllers/authController.js';
+import { sendTestNotification } from '../controllers/supplementController.js';
+
 import { uploadSingle } from '../middleware/upload.js';
 
 const router = express.Router();
@@ -15,6 +17,8 @@ router.post('/resend-otp', resendOTP);
 router.post('/login', login);
 router.put('/updateDeviceToken',authenticate,updateDeviceToken)
 
+// Protected routes
+router.get('/send-test', sendTestNotification);
 // Protected routes
 router.get('/profile', authenticate, getProfile);
 // Protected routes
