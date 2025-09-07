@@ -297,6 +297,53 @@ export const testPushNotification = async (userId, title, body, data = {}) => {
 // };
 
 
+export const scheduleSupplementNotification = async (deviceToken, name, time) => {
+  // try {
+    // const { deviceToken, name, time } = req.body; 
+    // time comes from DB as "HH:mm"
+
+    // 1️⃣ Current time
+    const now = new Date();
+
+    // 2️⃣ Build today's target time
+    const [hours, minutes] = time.split(":").map(Number);
+    let target = new Date();
+    target.setHours(hours, minutes, 0, 0); // set hh:mm:00
+
+    // 3️⃣ If already passed, schedule for tomorrow
+    if (target <= now) {
+      target.setDate(target.getDate() + 1);
+    }
+
+    // 4️⃣ Difference in ms
+    const diffMs = target.getTime() - now.getTime();
+    console.log(
+      `⏳ Scheduling notification for ${target.toLocaleString()} (in ${Math.round(
+        diffMs / 1000 / 60
+      )} minutes)`
+    );
+
+    // 5️⃣ Schedule notification
+    setTimeout(async () => {
+      try {
+        
+    sendTestNotification(deviceToken,name,time);
+      } catch (err) {
+        console.error("❌ Failed to send push:", err);
+      }
+    }, diffMs);
+
+    // res.json({
+    //   success: true,
+    //   message: `Notification scheduled for ${target.toLocaleTimeString()}`,
+    // });
+  // } catch (error) {
+  //   console.error("❌ Schedule error:", error);
+  //   res.status(500).json({ success: false, error: error.message });
+  // }
+};
+
+
 export const createSupplement = async (req, res) => {
   try {
     const { name, form, reason, day, time, frequency } = req.body;
@@ -321,7 +368,8 @@ export const createSupplement = async (req, res) => {
 
     console.log('>>>>>>>>>>>>>>>>>>>>>>>>>. ', req.body);
     
-    sendTestNotification(req.user.deviceToken,name,time);
+    
+    scheduleSupplementNotification(req.user.deviceToken,name,time);
     
     let supplements = [];
 
