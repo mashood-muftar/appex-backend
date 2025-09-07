@@ -18,7 +18,7 @@ router.post('/login', login);
 router.put('/updateDeviceToken',authenticate,updateDeviceToken)
 
 // Protected routes
-router.get('/send-test', sendTestNotification);
+router.post('/send-test', sendTestNotification);
 // Protected routes
 router.get('/profile', authenticate, getProfile);
 // Protected routes
