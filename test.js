@@ -23,7 +23,7 @@ try {
 
 // === 4. Send a test push notification ===
 // Replace this with a real FCM token from your iOS/Android app
-const testDeviceToken = "YOUR_FCM_DEVICE_TOKEN_HERE";
+const testDeviceToken = "dGKOc8F_Q1OOkjPOHOX7YN:APA91bEnUQW0l__CMpHIi3tR6HQKAC9g38tBBQDJusXsej8i9v1E2mbGXo5d1DBVN4IfccuISFH1VqUZoKh35T_hs_5Dqyls7HwVNd-gNrzgF-fvfewp92M";
 
 const message = {
   token: testDeviceToken,
