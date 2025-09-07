@@ -1,16 +1,8 @@
-// utils/firebase.js
-import admin from "firebase-admin";
-import path from "path";
-import fs from "fs";
+import { initializeApp, applicationDefault } from "firebase-admin/app";
+import { getMessaging } from "firebase-admin/messaging";
 
-if (!admin.apps.length) {
-  const serviceAccount = JSON.parse(
-    fs.readFileSync(path.resolve("apex-biotics-firebase-adminsdk-fbsvc-19a4b06da4.json"), "utf8")
-  );
+initializeApp({
+  credential: applicationDefault(),
+});
 
-  admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount),
-  });
-}
-
-export default admin;
+export const messaging = getMessaging();
