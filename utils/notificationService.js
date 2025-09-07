@@ -12,9 +12,9 @@ if (!admin.apps.length) {
   // admin.initializeApp({
   //   credential: admin.credential.cert(serviceAccount),
   // });
-  admin.initializeApp({
-      credential: admin.credential.cert(path.join('apex-biotics-firebase-adminsdk-fbsvc-19a4b06da4.json')),
-    });
+  // admin.initializeApp({
+  //     credential: admin.credential.cert(path.join('apex-biotics-firebase-adminsdk-fbsvc-19a4b06da4.json')),
+  //   });
 }
 
 const messaging = admin.messaging();
