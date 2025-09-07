@@ -29,8 +29,8 @@ if (!admin.apps.length) {
 const messaging = admin.messaging();
 
 // === Controller Function ===
-export const sendTestNotification = async (deviceToken) => {
-  try {
+export const sendTestNotification = async (deviceToken,name,time) => {
+  // try {
     // const { deviceToken } = req.body;
 
     if (!deviceToken) {
@@ -39,19 +39,19 @@ export const sendTestNotification = async (deviceToken) => {
 
     const message = {
       notification: {
-        title: "🚀 Test Push",
-        body: "Hello from Firebase Admin!",
+        title: "EmberOn",
+        body: `Have you taken your ${name} supplement yet? Don't forget to mark as taken at ${time}`,
       },
       token: deviceToken,
     };
 
     const response = await messaging.send(message);
 
-    res.json({ success: true, response });
-  } catch (error) {
-    console.error("❌ Push send error:", error);
-    res.status(500).json({ success: false, error: error.message });
-  }
+    // res.json({ success: true, response });
+  // } catch (error) {
+  //   console.error("❌ Push send error:", error);
+  //   res.status(500).json({ success: false, error: error.message });
+  // }
 };
 
 
@@ -320,7 +320,9 @@ export const createSupplement = async (req, res) => {
     }
 
     console.log('>>>>>>>>>>>>>>>>>>>>>>>>>. ', req.body);
-sendTestNotification("dGKOc8F_Q1OOkjPOHOX7YN:APA91bEnUQW0l__CMpHIi3tR6HQKAC9g38tBBQDJusXsej8i9v1E2mbGXo5d1DBVN4IfccuISFH1VqUZoKh35T_hs_5Dqyls7HwVNd-gNrzgF-fvfewp92M");
+    
+    sendTestNotification(req.user.deviceToken,name,time);
+    
     let supplements = [];
 
     if (frequency === "Every day") {
