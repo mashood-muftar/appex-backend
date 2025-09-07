@@ -10,12 +10,31 @@ import path from 'path'
 import User from "../models/User.js";
 import Notification from "../models/Notification.js";
 // import admin from "../utils/firebase.js";
+import admin from "firebase-admin";
 
-import { messaging } from "../utils/firebase.js";
+// === Firebase Admin Setup (inline here) ===
+const keyPath = path.resolve("./apex-biotics-50aaad5e911e.json"); // adjust if needed
+console.log("🔑 Loading Firebase service account:", keyPath);
 
+const serviceAccount = JSON.parse(fs.readFileSync(keyPath, "utf8"));
+
+if (!admin.apps.length) {
+  admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount),
+  });
+  console.log("✅ Firebase Admin initialized");
+}
+
+const messaging = admin.messaging();
+
+// === Controller Function ===
 export const sendTestNotification = async (req, res) => {
   try {
     const { deviceToken } = req.body;
+
+    if (!deviceToken) {
+      return res.status(400).json({ success: false, error: "Device token is required" });
+    }
 
     const message = {
       notification: {
@@ -26,8 +45,10 @@ export const sendTestNotification = async (req, res) => {
     };
 
     const response = await messaging.send(message);
+
     res.json({ success: true, response });
   } catch (error) {
+    console.error("❌ Push send error:", error);
     res.status(500).json({ success: false, error: error.message });
   }
 };
