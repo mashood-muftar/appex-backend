@@ -1,5 +1,5 @@
-const admin = require("firebase-admin");
-const fs = require("fs");
+import admin from "firebase-admin";
+import fs from "fs";
 
 // 👀 Debug: show which key is being loaded
 const keyPath = "./apex-biotics-50aaad5e911e.json";
