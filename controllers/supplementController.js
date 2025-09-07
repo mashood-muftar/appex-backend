@@ -11,46 +11,27 @@ import User from "../models/User.js";
 import Notification from "../models/Notification.js";
 import admin from "../utils/firebase.js";
 
+import { messaging } from "./firebase.js";
+
 export const sendTestNotification = async (req, res) => {
   try {
     const { deviceToken } = req.body;
 
-    if (!deviceToken) {
-      return res.status(400).json({
-        success: false,
-        message: "Device token required",
-      });
-    }
-
     const message = {
       notification: {
         title: "🚀 Test Push",
-        body: "This is a test push notification from Node.js backend",
+        body: "Hello from Firebase Admin!",
       },
       token: deviceToken,
-      apns: {
-        headers: { "apns-priority": "10" },
-        payload: { aps: { sound: "default", badge: 1 } },
-      },
     };
 
-    const response = await admin.messaging().send(message);
-    console.log("✅ Push sent:", response);
-
-    res.json({
-      success: true,
-      message: "Notification sent",
-      response,
-    });
+    const response = await messaging.send(message);
+    res.json({ success: true, response });
   } catch (error) {
-    console.error("❌ Push error:", error);
-    res.status(500).json({
-      success: false,
-      message: "Failed to send push",
-      error: error.message,
-    });
+    res.status(500).json({ success: false, error: error.message });
   }
 };
+
 
 
 const getCurrentUKDateTime = () => {
