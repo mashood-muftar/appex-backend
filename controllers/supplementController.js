@@ -11,7 +11,7 @@ import User from "../models/User.js";
 import Notification from "../models/Notification.js";
 // import admin from "../utils/firebase.js";
 
-import { messaging } from ../utils/firebase.js";
+import { messaging } from "../utils/firebase.js";
 
 export const sendTestNotification = async (req, res) => {
   try {
