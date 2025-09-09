@@ -64,7 +64,7 @@ export const getAllSupplements = async (req, res) => {
   try {
     // Get all supplements for the authenticated user
     const supplements = await Supplement.find({ user: req.user.id });
-    console.log(supplements);
+    console.log('getAllSupplements',supplements);
     res.json({
       success: true,
       count: supplements.length,
