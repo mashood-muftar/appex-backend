@@ -121,8 +121,8 @@ export const scheduleSupplementNotification = async (supplement) => {
       );
 
       //console.log(notificationResult
-        ? `✅ NOTIFICATION SUCCESS: Sent for supplement: ${name}`
-        : `❌ NOTIFICATION FAILED: Could not send for supplement: ${name}`);
+        // ? `✅ NOTIFICATION SUCCESS: Sent for supplement: ${name}`
+        // : `❌ NOTIFICATION FAILED: Could not send for supplement: ${name}`);
     } catch (error) {
       console.error(`❌ ERROR: Failed to process reminder notification for ${name}:`, error);
     }
@@ -152,8 +152,8 @@ export const scheduleSupplementNotification = async (supplement) => {
         );
 
         //console.log(notificationResult
-          ? `✅ MISSED NOTIFICATION SUCCESS: Sent for supplement: ${name}`
-          : `❌ MISSED NOTIFICATION FAILED: Could not send for supplement: ${name}`);
+          // ? `✅ MISSED NOTIFICATION SUCCESS: Sent for supplement: ${name}`
+          // : `❌ MISSED NOTIFICATION FAILED: Could not send for supplement: ${name}`);
       } else {
         //console.log(`ℹ️ INFO: Supplement ${name} was already taken or not pending, no missed notification needed`);
       }
