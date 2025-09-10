@@ -207,19 +207,24 @@ if (frequency === "Every day") {
     }));
   }
 } else if (frequency === "Every other day") {
-  // Create supplements for alternate days starting from today
-  for (let i = currentDay; i <= 6; i += 2) {
-    supplements.push(new Supplement({
-      name,
-      form,
-      reason,
-      day: i,
-      time,
-      status: 'pending',
-      user: req.user.id,
-      lastStatusUpdate: new Date()
-    }));
+  
+  // Create supplements every other day (for all weeks)
+  for (let i = 0; i <= 6; i++) {
+    // Keep the same even/odd parity as today
+    if ((i - currentDay) % 2 === 0) {
+      supplements.push(new Supplement({
+        name,
+        form,
+        reason,
+        day: i,
+        time,
+        status: 'pending',
+        user: req.user.id,
+        lastStatusUpdate: new Date()
+      }));
+    }
   }
+  
 } else {
   // Normal single supplement
   supplements.push(new Supplement({
