@@ -188,33 +188,51 @@ export const createSupplement = async (req, res) => {
     
     let supplements = [];
 
-    if (frequency === "Every day") {
-      // Create 7 supplements (for days 0–6)
-      for (let i = 0; i <= 6; i++) {
-        supplements.push(new Supplement({
-          name,
-          form,
-          reason,
-          day: i,
-          time,
-          status: 'pending',
-          user: req.user.id,
-          lastStatusUpdate: new Date()
-        }));
-      }
-    } else {
-      // Normal single supplement
-      supplements.push(new Supplement({
-        name,
-        form,
-        reason,
-        day,
-        time,
-        status: 'pending',
-        user: req.user.id,
-        lastStatusUpdate: new Date()
-      }));
-    }
+// const supplements = [];
+const today = new Date();
+const currentDay = today.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
+
+if (frequency === "Every day") {
+  // Create 7 supplements (for days 0–6)
+  for (let i = 0; i <= 6; i++) {
+    supplements.push(new Supplement({
+      name,
+      form,
+      reason,
+      day: i,
+      time,
+      status: 'pending',
+      user: req.user.id,
+      lastStatusUpdate: new Date()
+    }));
+  }
+} else if (frequency === "Every other day") {
+  // Create supplements for alternate days starting from today
+  for (let i = currentDay; i <= 6; i += 2) {
+    supplements.push(new Supplement({
+      name,
+      form,
+      reason,
+      day: i,
+      time,
+      status: 'pending',
+      user: req.user.id,
+      lastStatusUpdate: new Date()
+    }));
+  }
+} else {
+  // Normal single supplement
+  supplements.push(new Supplement({
+    name,
+    form,
+    reason,
+    day,
+    time,
+    status: 'pending',
+    user: req.user.id,
+    lastStatusUpdate: new Date()
+  }));
+}
 
     // Save all supplements in bulk
     const savedSupplements = await Supplement.insertMany(supplements);
