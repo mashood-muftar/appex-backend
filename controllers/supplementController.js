@@ -132,11 +132,11 @@ export const scheduletNotification = async (deviceToken, name, time) => {
     let diffMs = target.getTime() - now.getTime();
     diffMs = diffMs - 300 * 60 * 1000;
 
-    console.log(
-      `⏳ Scheduling notification for ${target.toLocaleString()} (in ${Math.round(
-        diffMs / 1000 / 60
-      )} minutes)`
-    );
+    // console.log(
+    //   `⏳ Scheduling notification for ${target.toLocaleString()} (in ${Math.round(
+    //     diffMs / 1000 / 60
+    //   )} minutes)`
+    // );
 
     // 5️⃣ Schedule notification
     setTimeout(async () => {
@@ -227,7 +227,7 @@ export const createSupplement = async (req, res) => {
       setTimeout(async () => {
         try {
           await scheduleStatusCheck(populatedSupplement);
-          console.log(`Scheduled notifications for: ${populatedSupplement.name} (Day ${populatedSupplement.day})`);
+          // console.log(`Scheduled notifications for: ${populatedSupplement.name} (Day ${populatedSupplement.day})`);
         } catch (err) {
           console.error('Error scheduling notifications:', err);
         }
@@ -563,7 +563,7 @@ export const getTodaysSupplements = async (req, res) => {
     const currentDate = new Date(today.getFullYear(), today.getMonth(), today.getDate());
 
     
-    console.log('getTodaysSupplements');
+    // console.log('getTodaysSupplements');
     
     // Build query to find supplements for today
     const query = {
@@ -617,7 +617,7 @@ export const getTodaysSupplements = async (req, res) => {
 export const getTodaySupplements = async (req, res) => {
   try {
     
-    console.log('getTodaySupplements');
+    // console.log('getTodaySupplements');
     
     // Make sure we have a valid user ID
     if (!req.user || !req.user.id) {
@@ -701,7 +701,7 @@ export const getSupplementsByDay = async (req, res) => {
     const { day } = req.params; // day should be 0-6 representing Sunday-Saturday
     const dayNum = parseInt(day);
     
-    console.log('getSupplementsByDay');
+    // console.log('getSupplementsByDay');
     if (isNaN(dayNum) || dayNum < 0 || dayNum > 6) {
       return res.status(400).json({
         success: false,
