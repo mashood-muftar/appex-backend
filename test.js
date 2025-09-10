@@ -3,7 +3,7 @@ import fs from "fs";
 
 // === 1. Load service account key ===
 const keyPath = "./apex-biotics-50aaad5e911e.json"; // adjust path if needed
-console.log("Loading service account key from:", keyPath);
+// console.log("Loading servi?ce account key from:", keyPath);
 
 const serviceAccount = JSON.parse(fs.readFileSync(keyPath, "utf8"));
 
@@ -15,7 +15,7 @@ admin.initializeApp({
 // === 3. Test: Generate an access token ===
 try {
   const token = await admin.app().options.credential.getAccessToken();
-  console.log("✅ Successfully generated access token:", token.access_token.slice(0, 30), "...");
+  // console.log("✅ Successfully generated access token:", token.access_token.slice(0, 30), "...");
 } catch (err) {
   console.error("❌ Failed to generate token:", err);
   process.exit(1);
@@ -35,7 +35,7 @@ const message = {
 
 try {
   const response = await admin.messaging().send(message);
-  console.log("✅ Push notification sent:", response);
+  // console.log("✅ Push notification sent:", response);
 } catch (err) {
   console.error("❌ Failed to send push:", err);
 }

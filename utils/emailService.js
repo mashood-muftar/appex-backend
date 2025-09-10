@@ -41,7 +41,7 @@ export const sendInvitationEmail = async (email, senderName, invitationLink) => 
         </div>
       `
     });
-    console.log('Invitation email sent: %s', info.messageId);
+    // console.log('Invitation email sent: %s', info.messageId);
     return true;
   } catch (error) {
     console.error('Error sending invitation email:', error);
@@ -68,7 +68,7 @@ export const sendOTPEmail = async (email, name, otp) => {
         </div>
       `
     });
-    console.log('OTP email sent: %s', info.messageId);
+    // console.log('OTP email sent: %s', info.messageId);
     return true;
   } catch (error) {
     console.error('Error sending OTP email:', error);
@@ -96,7 +96,7 @@ export const sendPasswordResetOTPEmail = async (email, name, otp) => {
         </div>
       `
     });
-    console.log('Password reset email sent: %s', info.messageId);
+    // console.log('Password reset email sent: %s', info.messageId);
     return true;
   } catch (error) {
     console.error('Error sending password reset email:', error);
@@ -151,7 +151,7 @@ export const sendDiaryEmail = async ({ recipientEmail, senderName, senderEmail, 
       ]
     });
 
-    console.log('Diary email sent: %s', info.messageId);
+    // console.log('Diary email sent: %s', info.messageId);
     return true;
   } catch (error) {
     console.error('Error sending diary email:', error);

@@ -86,7 +86,7 @@ export const getSupplementById = async (req, res) => {
       user: req.user.id
     });
 
-    console.log('getSupplementById');
+    // console.log('getSupplementById');
     
     if (!supplement) {
       return res.status(404).json({

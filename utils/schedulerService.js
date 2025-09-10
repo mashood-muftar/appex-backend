@@ -29,7 +29,7 @@ const getCurrentUKDateTime = () => {
  * @returns {Promise<Object>} Object containing scheduled jobs
  */
 export const scheduleSupplementNotification = async (supplement) => {
-  console.log(`📅 SCHEDULING: Starting for supplement ID: ${supplement._id}, Name: ${supplement.name}`);
+  //console.log(`📅 SCHEDULING: Starting for supplement ID: ${supplement._id}, Name: ${supplement.name}`);
 
   const { _id, day, time, name, user } = supplement;
   const jobId = `supplement_${_id}`;
@@ -37,7 +37,7 @@ export const scheduleSupplementNotification = async (supplement) => {
   // Cancel existing jobs if they exist
   if (activeJobs.has(jobId)) {
     const jobs = activeJobs.get(jobId);
-    console.log(`🔄 RESCHEDULING: Cancelling existing jobs for supplement ID: ${_id}`);
+    //console.log(`🔄 RESCHEDULING: Cancelling existing jobs for supplement ID: ${_id}`);
     jobs.forEach(job => {
       if (job && typeof job.cancel === 'function') {
         job.cancel();
@@ -56,7 +56,7 @@ export const scheduleSupplementNotification = async (supplement) => {
   // Cancel any existing jobs with the same identifiers across all active jobs
   for (const [existingJobId, jobs] of activeJobs.entries()) {
     if (existingJobId.includes(reminderIdentifier) || existingJobId.includes(missedIdentifier)) {
-      console.log(`🔄 CANCELLING DUPLICATE JOB: ${existingJobId}`);
+      //console.log(`🔄 CANCELLING DUPLICATE JOB: ${existingJobId}`);
       jobs.forEach(job => {
         if (job && typeof job.cancel === 'function') {
           job.cancel();
@@ -90,12 +90,12 @@ export const scheduleSupplementNotification = async (supplement) => {
 
   // Schedule reminder job with debounce mechanism
   const reminderJob = schedule.scheduleJob(reminderIdentifier, reminderRule, async () => {
-    console.log(`⏰ REMINDER TRIGGERED: ${getCurrentUKDateTime().toISOString()} for supplement ${name}`);
+    //console.log(`⏰ REMINDER TRIGGERED: ${getCurrentUKDateTime().toISOString()} for supplement ${name}`);
     try {
       // Get the current supplement to check last notification time and status
       const currentSupplement = await Supplement.findById(_id);
       if (!currentSupplement) {
-        console.log(`❌ ERROR: Supplement ${_id} no longer exists`);
+        //console.log(`❌ ERROR: Supplement ${_id} no longer exists`);
         return;
       }
       
@@ -104,7 +104,7 @@ export const scheduleSupplementNotification = async (supplement) => {
       const fiveMinutesAgo = new Date(getCurrentUKDateTime() - 5 * 60 * 1000);
       
       if (lastUpdate > fiveMinutesAgo && currentSupplement.status === 'pending') {
-        console.log(`⏭️ SKIPPING DUPLICATE NOTIFICATION: Recently updated supplement ${name}`);
+        //console.log(`⏭️ SKIPPING DUPLICATE NOTIFICATION: Recently updated supplement ${name}`);
         return;
       }
       
@@ -120,7 +120,7 @@ export const scheduleSupplementNotification = async (supplement) => {
         { supplementId: _id.toString(), type: 'SUPPLEMENT_REMINDER' }
       );
 
-      console.log(notificationResult
+      //console.log(notificationResult
         ? `✅ NOTIFICATION SUCCESS: Sent for supplement: ${name}`
         : `❌ NOTIFICATION FAILED: Could not send for supplement: ${name}`);
     } catch (error) {
@@ -130,11 +130,11 @@ export const scheduleSupplementNotification = async (supplement) => {
 
   // Schedule missed job with unique identifier
   const missedJob = schedule.scheduleJob(missedIdentifier, missedRule, async () => {
-    console.log(`❓ MISSED CHECK TRIGGERED: ${getCurrentUKDateTime().toISOString()} for supplement ${name}`);
+    //console.log(`❓ MISSED CHECK TRIGGERED: ${getCurrentUKDateTime().toISOString()} for supplement ${name}`);
     try {
       const currentSupplement = await Supplement.findById(_id);
       if (!currentSupplement) {
-        console.log(`❌ ERROR: Supplement ${_id} no longer exists`);
+        //console.log(`❌ ERROR: Supplement ${_id} no longer exists`);
         return;
       }
       
@@ -151,11 +151,11 @@ export const scheduleSupplementNotification = async (supplement) => {
           { supplementId: _id.toString(), type: 'SUPPLEMENT_MISSED' }
         );
 
-        console.log(notificationResult
+        //console.log(notificationResult
           ? `✅ MISSED NOTIFICATION SUCCESS: Sent for supplement: ${name}`
           : `❌ MISSED NOTIFICATION FAILED: Could not send for supplement: ${name}`);
       } else {
-        console.log(`ℹ️ INFO: Supplement ${name} was already taken or not pending, no missed notification needed`);
+        //console.log(`ℹ️ INFO: Supplement ${name} was already taken or not pending, no missed notification needed`);
       }
     } catch (error) {
       console.error(`❌ ERROR: Failed to process missed notification for ${name}:`, error);
@@ -174,9 +174,9 @@ export const scheduleSupplementNotification = async (supplement) => {
   // Store jobs with unique identifiers
   activeJobs.set(jobId, [reminderJob, missedJob]);
 
-  console.log(`🔜 NEXT REMINDER: ${reminderJob.nextInvocation()?.toISOString() || 'Unknown'}`);
-  console.log(`🔜 NEXT MISSED CHECK: ${missedJob.nextInvocation()?.toISOString() || 'Unknown'}`);
-  console.log(`✅ SCHEDULING COMPLETE: For supplement ${name}`);
+  //console.log(`🔜 NEXT REMINDER: ${reminderJob.nextInvocation()?.toISOString() || 'Unknown'}`);
+  //console.log(`🔜 NEXT MISSED CHECK: ${missedJob.nextInvocation()?.toISOString() || 'Unknown'}`);
+  //console.log(`✅ SCHEDULING COMPLETE: For supplement ${name}`);
 
   return { reminderJob, missedJob };
 };
@@ -186,7 +186,7 @@ export const scheduleSupplementNotification = async (supplement) => {
  * @returns {Promise<void>}
  */
 export const initializeAllSchedules = async () => {
-  console.log(`🚀 INITIALIZING ALL SCHEDULES: Starting at ${getCurrentUKDateTime().toISOString()} UK time`);
+  //console.log(`🚀 INITIALIZING ALL SCHEDULES: Starting at ${getCurrentUKDateTime().toISOString()} UK time`);
 
   // Clear all existing jobs
   for (const [jobId, jobs] of activeJobs.entries()) {
@@ -204,7 +204,7 @@ export const initializeAllSchedules = async () => {
       .populate('user', 'deviceToken notificationSettings')
       .lean();
     
-    console.log(`📦 FOUND ${supplements.length} SUPPLEMENTS TO SCHEDULE`);
+    //console.log(`📦 FOUND ${supplements.length} SUPPLEMENTS TO SCHEDULE`);
 
     // Create a map to detect duplicate supplements
     const supplementMap = new Map();
@@ -216,16 +216,16 @@ export const initializeAllSchedules = async () => {
         supplementMap.set(key, true);
         uniqueSupplements.push(supplement);
       } else {
-        console.log(`⚠️ DUPLICATE SUPPLEMENT DETECTED: ${supplement.name} for user ${supplement.user._id}, skipping...`);
+        //console.log(`⚠️ DUPLICATE SUPPLEMENT DETECTED: ${supplement.name} for user ${supplement.user._id}, skipping...`);
       }
     }
     
-    console.log(`📊 SCHEDULING ${uniqueSupplements.length} UNIQUE SUPPLEMENTS`);
+    //console.log(`📊 SCHEDULING ${uniqueSupplements.length} UNIQUE SUPPLEMENTS`);
 
     for (const supplement of uniqueSupplements) {
       await scheduleSupplementNotification(supplement);
     }
-    console.log(`✅ ALL SCHEDULES INITIALIZED SUCCESSFULLY`);
+    //console.log(`✅ ALL SCHEDULES INITIALIZED SUCCESSFULLY`);
   } catch (error) {
     console.error(`❌ ERROR INITIALIZING SCHEDULES:`, error);
   }
@@ -236,7 +236,7 @@ export const initializeAllSchedules = async () => {
  * @returns {Object} The scheduled job
  */
 export const scheduleStatusReset = () => {
-  console.log(`🔄 SETTING UP DAILY RESET: Will run at midnight UK time`);
+  //console.log(`🔄 SETTING UP DAILY RESET: Will run at midnight UK time`);
 
   const resetRule = new schedule.RecurrenceRule();
   resetRule.hour = 0;
@@ -245,7 +245,7 @@ export const scheduleStatusReset = () => {
   resetRule.tz = 'Europe/London';
 
   const resetJob = schedule.scheduleJob(resetRule, async () => {
-    console.log(`🔄 DAILY RESET TRIGGERED: ${getCurrentUKDateTime().toISOString()} UK time`);
+    //console.log(`🔄 DAILY RESET TRIGGERED: ${getCurrentUKDateTime().toISOString()} UK time`);
     try {
       const today = getCurrentUKDateTime();
       const dayOfWeek = today.getDay();
@@ -255,7 +255,7 @@ export const scheduleStatusReset = () => {
         $or: [{ status: 'missed' }, { status: 'taken' }],
       });
 
-      console.log(`📦 FOUND ${supplements.length} SUPPLEMENTS TO RESET FOR DAY ${dayOfWeek}`);
+      //console.log(`📦 FOUND ${supplements.length} SUPPLEMENTS TO RESET FOR DAY ${dayOfWeek}`);
 
       for (const supplement of supplements) {
         const { hours, minutes } = parseTime(supplement.time);
@@ -267,9 +267,9 @@ export const scheduleStatusReset = () => {
             status: 'pending',
             lastStatusUpdate: new Date(),
           });
-          console.log(`✅ RESET SUPPLEMENT: ${supplement.name} to pending status`);
+          //console.log(`✅ RESET SUPPLEMENT: ${supplement.name} to pending status`);
         } else {
-          console.log(`ℹ️ NO RESET NEEDED: ${supplement.name}, time is in the past`);
+          //console.log(`ℹ️ NO RESET NEEDED: ${supplement.name}, time is in the past`);
         }
       }
     } catch (error) {
@@ -286,7 +286,7 @@ export const scheduleStatusReset = () => {
  * @returns {Promise<Object>} Object containing scheduled jobs
  */
 export const scheduleStatusCheck = async (supplement) => {
-  console.log(`📝 NEW SUPPLEMENT SCHEDULING: Starting for ${supplement.name} for user ${supplement.user}`);
+  //console.log(`📝 NEW SUPPLEMENT SCHEDULING: Starting for ${supplement.name} for user ${supplement.user}`);
 
   try {
     if (!supplement.user.deviceToken) {

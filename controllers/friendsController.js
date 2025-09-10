@@ -168,8 +168,8 @@ export const acceptFriendRequest = async (req, res) => {
   try {
     const { requestId } = req.params;
     const userId = req.user.id;
-    console.log('Request ID:', requestId);
-    console.log('User ID:', userId);
+    // console.log('Request ID:', requestId);
+    // console.log('User ID:', userId);
     const friendRequest = await Friend.findOne({
       _id: requestId,
       recipient: userId,

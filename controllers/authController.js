@@ -341,7 +341,7 @@ export const login = async (req, res) => {
 export const updateDeviceToken = async (req, res) => {
   try {
     const { deviceToken } = req.body;
-    console.log('req.user',req.user);
+    // console.log('req.user',req.user);
     
     if (!deviceToken) {
       return res.status(400).json({

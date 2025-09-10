@@ -47,7 +47,7 @@ export const sendNotification = async ({
     };
 
     const response = await messaging.send(payload);
-    console.log("Notification gaya:", response);
+    // console.log("Notification gaya:", response);
   } catch (error) {
     console.error("Notification bhejne mein error:", error);
   }
