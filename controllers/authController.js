@@ -283,6 +283,7 @@ export const resendOTP = async (req, res) => {
   }
 };
 
+
 export const login = async (req, res) => {
   try {
     const { email, password, deviceToken } = req.body;
@@ -324,12 +325,21 @@ export const login = async (req, res) => {
     delete userResponse.password;
     delete userResponse.verificationOTP;
 
+    // 🟢 Debug log before sending response
+    console.log("✅ Login response about to send:", {
+      message: "Login successful testing",
+      success: true,
+      user: userResponse.email,
+      token: token.substring(0, 20) + "..." // token shortened for logs
+    });
+
     res.json({
       message: 'Login successful testing',
       success: true,
       data: { user: userResponse, token },
     });
   } catch (error) {
+    console.error("❌ Login error:", error.message);
     res.status(500).json({
       success: false,
       message: 'Server error',
@@ -337,6 +347,61 @@ export const login = async (req, res) => {
     });
   }
 };
+
+// export const login = async (req, res) => {
+//   try {
+//     const { email, password, deviceToken } = req.body;
+
+//     const user = await User.findOne({ email: email.toLowerCase() });
+//     if (!user) {
+//       return res.status(401).json({
+//         success: false,
+//         message: 'Invalid credentials',
+//       });
+//     }
+
+//     const isMatch = await user.comparePassword(password);
+//     if (!isMatch) {
+//       return res.status(401).json({
+//         success: false,
+//         message: 'Invalid credentials',
+//       });
+//     }
+
+//     if (!user.isVerified) {
+//       const otp = user.generateOTP();
+//       await user.save();
+//       await sendOTPEmail(user.email, user.name, otp);
+//       return res.status(403).json({
+//         success: false,
+//         message: 'Email not verified. A new OTP has been sent.',
+//         data: { email: user.email },
+//       });
+//     }
+
+//     if (deviceToken) {
+//       user.deviceToken = deviceToken;
+//       await user.save();
+//     }
+
+//     const token = generateToken(user._id);
+//     const userResponse = user.toObject();
+//     delete userResponse.password;
+//     delete userResponse.verificationOTP;
+
+//     res.json({
+//       message: 'Login successful testing',
+//       success: true,
+//       data: { user: userResponse, token },
+//     });
+//   } catch (error) {
+//     res.status(500).json({
+//       success: false,
+//       message: 'Server error',
+//       error: error.message,
+//     });
+//   }
+// };
 
 
 export const updateDeviceToken = async (req, res) => {
