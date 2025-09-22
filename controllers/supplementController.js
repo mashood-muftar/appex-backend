@@ -408,7 +408,7 @@ export const createSupplement = async (req, res) => {
     // ✅ Save all supplements
     const savedSupplements = await Supplement.insertMany(supplements);
 
-    ✅ Schedule notifications
+    //✅ Schedule notifications
     for (let supp of savedSupplements) {
       scheduletNotification(req.user.deviceToken, supp.name, supp.time);
 
