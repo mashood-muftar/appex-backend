@@ -287,6 +287,7 @@ export const login = async (req, res) => {
   try {
     const { email, password, deviceToken } = req.body;
 
+    console.log('Login request body:', req.body);
     const user = await User.findOne({ email: email.toLowerCase() });
     if (!user) {
       return res.status(401).json({
@@ -325,7 +326,6 @@ export const login = async (req, res) => {
     delete userResponse.verificationOTP;
 
     res.json({
-      message: 'Login successful testing',
       success: true,
       data: { user: userResponse, token },
     });

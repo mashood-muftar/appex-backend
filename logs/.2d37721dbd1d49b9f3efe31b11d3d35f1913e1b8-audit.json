@@ -1,0 +1,15 @@
+{
+    "keep": {
+        "days": true,
+        "amount": 14
+    },
+    "auditLog": "C:\\Users\\LENOVO\\Music\\appex-backend\\logs\\.2d37721dbd1d49b9f3efe31b11d3d35f1913e1b8-audit.json",
+    "files": [
+        {
+            "date": 1758525662011,
+            "name": "C:\\Users\\LENOVO\\Music\\appex-backend\\logs\\error-2025-09-22.log",
+            "hash": "fbaf5250ee06bbae04d24d9f35985531a2162b8bf2549ea4adaa1ebc0bae3eb2"
+        }
+    ],
+    "hashType": "sha256"
+}
