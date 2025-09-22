@@ -2,7 +2,7 @@
 import express from 'express';
 
 import { authenticate } from '../middleware/authMiddleware.js';
-import { getProfile, login, register, updateProfile, registerWithInvitation, updateDeviceToken, deleteUser, verifyEmail, resendOTP,addAppointment,getAppointment } from '../controllers/authController.js';
+import { getProfile, login, register, updateProfile, registerWithInvitation, updateDeviceToken, deleteUser, verifyEmail, resendOTP,addAppointment,getAppointment, updateAppointment, deleteAppointment } from '../controllers/authController.js';
 import { sendTestNotification } from '../controllers/supplementController.js';
 
 import { uploadSingle } from '../middleware/upload.js';
@@ -25,6 +25,14 @@ router.get('/profile', authenticate, getProfile);
 router.post('/add/appointment',authenticate,  addAppointment);
 // Protected routes
 router.get('/get/appointment', authenticate, getAppointment);
+
+// Update appointment
+router.put('/update/appointment/:appointmentId', authenticate, updateAppointment);
+
+// Delete appointment
+router.delete('/delete/appointment/:appointmentId', authenticate, deleteAppointment);
+
+
 router.put('/profile', authenticate,uploadSingle('profilePicture'), updateProfile);
 router.delete(
     '/delete',

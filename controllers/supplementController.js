@@ -12,7 +12,7 @@ import Notification from "../models/Notification.js";
 // import admin from "../utils/firebase.js";
 import admin from "firebase-admin";
 import fs from "fs";
-
+import { v4 as uuidv4 } from "uuid";
 
 // === Firebase Admin Setup (inline here) ===
 const keyPath = path.resolve("./apex-biotics-50aaad5e911e.json"); // adjust if needed
@@ -57,7 +57,7 @@ export const sendTestNotification = async (deviceToken,name,time) => {
 
 
 
-const getCurrentUKDateTime = () => {
+export const getCurrentUKDateTime = () => {
   return new Date(new Date().toLocaleString('en-US', { timeZone: 'Europe/London' }));
 };
 
@@ -109,7 +109,33 @@ export const getSupplementById = async (req, res) => {
   }
 };
 
+export const getTakenSupplements = async (req, res) => {
+  try {
+    const supplements = await Supplement.find({
+      user: req.user.id,
+      status: 'taken'
+    });
 
+    if (!supplements || supplements.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'No taken supplements found'
+      });
+    }
+
+    res.json({
+      success: true,
+      count: supplements.length,
+      data: supplements
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Server error',
+      error: error.message
+    });
+  }
+};
 
 export const scheduletNotification = async (deviceToken, name, time) => {
   // try {
@@ -163,17 +189,13 @@ export const scheduletNotification = async (deviceToken, name, time) => {
 export const createSupplement = async (req, res) => {
   try {
     const { name, form, reason, day, time, frequency, daysOfWeek, cycle, interval } = req.body;
-    // extra fields:
-    // daysOfWeek → [0,2,4] e.g. for Mon, Wed, Fri
-    // cycle → { startDate, endDate, repeat } for recurring
-    // interval → number (for X days / X weeks / X months)
 
     // ✅ Validate required fields
     if (!name || !form || !time) {
       return res.status(400).json({
         success: false,
-        message: 'Missing required fields',
-        required: ['name', 'form', 'time']
+        message: "Missing required fields",
+        required: ["name", "form", "time"],
       });
     }
 
@@ -181,102 +203,225 @@ export const createSupplement = async (req, res) => {
     if (!/^([01]\d|2[0-3]):([0-5]\d)$/.test(time)) {
       return res.status(400).json({
         success: false,
-        message: 'Invalid time format. Please use HH:MM in 24-hour format',
-        example: '08:30'
+        message: "Invalid time format. Please use HH:MM in 24-hour format",
+        example: "08:30",
       });
     }
 
-    console.log('>>>>>>>>>> Request Body: ', req.body);
+    console.log(">>>>>>>>>> Request Body: ", req.body);
 
     let supplements = [];
     const today = new Date();
     const currentDay = today.getDay(); // 0=Sunday, 6=Saturday
+    const cycleId = uuidv4(); // 🔑 ek unique id poore cycle ke liye
 
     // 🔹 1. Every day
-    if (frequency === "Every day") {
-      for (let i = 0; i <= 6; i++) {
-        supplements.push(new Supplement({ name, form, reason, day: i, time, status: 'pending', user: req.user.id }));
+    if (frequency === "Every day" && day !== undefined) {
+      const start = new Date(today);
+      const end = new Date(start);
+      end.setFullYear(end.getFullYear() + 1);
+
+      let current = new Date(start);
+      while (current <= end) {
+        if (current.getDay() === day) {
+          supplements.push(
+            new Supplement({
+              name,
+              form,
+              reason,
+              day,
+              time,
+              status: "pending",
+              user: req.user.id,
+              cycleDate: new Date(current),
+              cycleId, // 🔑 add cycleId
+            })
+          );
+        }
+        current.setDate(current.getDate() + 1);
       }
     }
 
     // 🔹 2. Every other day
-    else if (frequency === "Every other day") {
-      for (let i = 0; i <= 6; i++) {
-        if ((i - currentDay) % 2 === 0) {
-          supplements.push(new Supplement({ name, form, reason, day: i, time, status: 'pending', user: req.user.id }));
+    else if (frequency === "Every other day" && day !== undefined) {
+      const start = new Date(today);
+      const end = new Date(start);
+      end.setFullYear(end.getFullYear() + 1);
+
+      let current = new Date(start);
+      while (current <= end) {
+        if (current.getDay() === day) {
+          supplements.push(
+            new Supplement({
+              name,
+              form,
+              reason,
+              day,
+              time,
+              status: "pending",
+              user: req.user.id,
+              cycleDate: new Date(current),
+              cycleId,
+            })
+          );
         }
+        current.setDate(current.getDate() + 2);
       }
     }
 
-    // 🔹 3. Specific days of the week (daysOfWeek array chahiye)
+    // 🔹 3. Specific days of the week
     else if (frequency === "Specific days of the week" && Array.isArray(daysOfWeek)) {
-      daysOfWeek.forEach(d => {
-        supplements.push(new Supplement({ name, form, reason, day: d, time, status: 'pending', user: req.user.id }));
+      daysOfWeek.forEach((d) => {
+        supplements.push(
+          new Supplement({
+            name,
+            form,
+            reason,
+            day: d,
+            time,
+            status: "pending",
+            user: req.user.id,
+            cycleId,
+          })
+        );
       });
     }
 
-    // 🔹 4. On a recurring cycle (cycle object chahiye)
+    // 🔹 4. On a recurring cycle
     else if (frequency === "On a recurring cycle" && cycle?.startDate && cycle?.repeat) {
       const start = new Date(cycle.startDate);
-      const end = cycle.endDate ? new Date(cycle.endDate) : new Date(start.getTime() + 30*24*60*60*1000); // default 1 month
+      const end = cycle.endDate
+        ? new Date(cycle.endDate)
+        : new Date(start.getTime() + 30 * 24 * 60 * 60 * 1000);
       let current = new Date(start);
 
       while (current <= end) {
-        supplements.push(new Supplement({
-          name, form, reason, day: current.getDay(), time,
-          status: 'pending', user: req.user.id, cycleDate: current
-        }));
+        supplements.push(
+          new Supplement({
+            name,
+            form,
+            reason,
+            day: current.getDay(),
+            time,
+            status: "pending",
+            user: req.user.id,
+            cycleDate: current,
+            cycleId,
+          })
+        );
         current.setDate(current.getDate() + cycle.repeat);
       }
     }
 
     // 🔹 5. Every X days
-    else if (frequency === "Every X days" && interval) {
-      for (let i = 0; i <= 30; i += interval) {
-        const date = new Date(today);
-        date.setDate(date.getDate() + i);
-        supplements.push(new Supplement({ name, form, reason, day: date.getDay(), time, status: 'pending', user: req.user.id, cycleDate: date }));
+    else if (frequency === "Every X days" && day !== undefined) {
+      const start = new Date(today);
+      const end = new Date(start);
+      end.setMonth(end.getMonth() + 1);
+
+      let current = new Date(start);
+      while (current <= end) {
+        if (current.getDay() === day) {
+          supplements.push(
+            new Supplement({
+              name,
+              form,
+              reason,
+              day: current.getDay(),
+              time,
+              status: "pending",
+              user: req.user.id,
+              cycleDate: new Date(current),
+              cycleId,
+            })
+          );
+        }
+        current.setDate(current.getDate() + 1);
       }
     }
 
     // 🔹 6. Every X weeks
     else if (frequency === "Every X weeks" && interval) {
-      for (let i = 0; i <= 12; i += interval) { // 12 weeks = 3 months approx
-        const date = new Date(today);
-        date.setDate(date.getDate() + i*7);
-        supplements.push(new Supplement({ name, form, reason, day: date.getDay(), time, status: 'pending', user: req.user.id, cycleDate: date }));
+      const start = new Date(today);
+      const end = new Date(start);
+      end.setMonth(end.getMonth() + 3);
+
+      let current = new Date(start);
+      while (current <= end) {
+        supplements.push(
+          new Supplement({
+            name,
+            form,
+            reason,
+            day: current.getDay(),
+            time,
+            status: "pending",
+            user: req.user.id,
+            cycleDate: new Date(current),
+            cycleId,
+          })
+        );
+        current.setDate(current.getDate() + interval * 7);
       }
     }
 
     // 🔹 7. Every X months
     else if (frequency === "Every X months" && interval) {
-      for (let i = 0; i <= 12; i += interval) {
-        const date = new Date(today);
-        date.setMonth(date.getMonth() + i);
-        supplements.push(new Supplement({ name, form, reason, day: date.getDay(), time, status: 'pending', user: req.user.id, cycleDate: date }));
+      const start = new Date(today);
+      const end = new Date(start);
+      end.setFullYear(end.getFullYear() + 1);
+
+      let current = new Date(start);
+      while (current <= end) {
+        supplements.push(
+          new Supplement({
+            name,
+            form,
+            reason,
+            day: current.getDay(),
+            time,
+            status: "pending",
+            user: req.user.id,
+            cycleDate: new Date(current),
+            cycleId,
+          })
+        );
+        current.setMonth(current.getMonth() + interval);
       }
     }
 
     // 🔹 8. Only as needed
     else if (frequency === "Only as needed") {
-      supplements.push(new Supplement({ name, form, reason, time, status: 'pending', user: req.user.id }));
+      supplements.push(
+        new Supplement({
+          name,
+          form,
+          reason,
+          time,
+          status: "pending",
+          user: req.user.id,
+          cycleId,
+        })
+      );
     }
 
     // ✅ Save all supplements
     const savedSupplements = await Supplement.insertMany(supplements);
 
-    // ✅ Schedule notifications for each supplement
+    ✅ Schedule notifications
     for (let supp of savedSupplements) {
       scheduletNotification(req.user.deviceToken, supp.name, supp.time);
-    
-      const populatedSupplement = await Supplement.findById(supp._id)
-        .populate('user', 'deviceToken notificationSettings');
-    
+
+      const populatedSupplement = await Supplement.findById(supp._id).populate(
+        "user",
+        "deviceToken notificationSettings"
+      );
+
       setTimeout(async () => {
         try {
           await scheduleStatusCheck(populatedSupplement);
         } catch (err) {
-          console.error('Error scheduling notifications:', err);
+          console.error("Error scheduling notifications:", err);
         }
       }, 500);
     }
@@ -284,16 +429,75 @@ export const createSupplement = async (req, res) => {
     res.status(201).json({
       success: true,
       message: `Supplements created with frequency: ${frequency}`,
-      data: savedSupplements
+      data: savedSupplements,
     });
+  } catch (error) {
+    console.error("Error creating supplement:", error);
+    res
+      .status(500)
+      .json({ success: false, message: "Server error", error: error.message });
+  }
+};
+
+
+export const deleteallortodaysupplement = async (req, res) => {
+  try {
+    const { scope } = req.query; // "today" | "all"
+    const { id } = req.params;   // child _id OR parentId depending on scope
+
+    if (scope === 'today') {
+      // Child record delete
+      const supplement = await Supplement.findOneAndDelete({ _id: id, user: req.user.id });
+      if (!supplement) {
+        return res.status(404).json({ success: false, message: 'Supplement not found' });
+      }
+      return res.json({ success: true, message: "Today’s supplement deleted" });
+    }
+
+    if (scope === 'all') {
+      // Parent record delete
+      const result = await Supplement.deleteMany({ cycleId: id, user: req.user.id });
+      return res.json({ success: true, message: "All supplements deleted", deletedCount: result.deletedCount });
+    }
+
+    return res.status(400).json({ success: false, message: "Invalid scope, use today or all" });
 
   } catch (error) {
-    console.error('Error creating supplement:', error);
+    res.status(500).json({ success: false, message: "Server error", error: error.message });
+  }
+};
+
+export const updateSupplementPills = async (req, res) => {
+  try {
+    const { id } = req.params; // supplement _id
+    const { pills } = req.body;
+
+    if (!pills || pills < 1) {
+      return res.status(400).json({ success: false, message: 'Pills must be at least 1' });
+    }
+
+    const supplement = await Supplement.findOneAndUpdate(
+      { _id: id, user: req.user.id },
+      { pills },
+      { new: true }
+    );
+
+    if (!supplement) {
+      return res.status(404).json({ success: false, message: 'Supplement not found' });
+    }
+
+    res.json({
+      success: true,
+      message: 'Pills updated successfully',
+      supplement
+    });
+  } catch (error) {
     res.status(500).json({ success: false, message: 'Server error', error: error.message });
   }
 };
 
 //working comment for creating another version----///
+
 // export const createSupplement = async (req, res) => {
 //   try {
 //     const { name, form, reason, day, time, frequency } = req.body;
@@ -899,78 +1103,79 @@ export const updateSupplementStatus = async (req, res) => {
     if (!userId) {
       return res.status(401).json({
         success: false,
-        message: 'Authentication required',
+        message: "Authentication required",
       });
     }
 
-    if (!['taken', 'missed', 'pending'].includes(status)) {
+    if (!["taken", "missed", "pending"].includes(status)) {
       return res.status(400).json({
         success: false,
-        message: 'Invalid status',
+        message: "Invalid status",
       });
     }
 
-    const supplement = await Supplement.findOne({
-      _id: supplementId,
-      user: userId,
-    });
+    // 🔹 Update only the specific supplement
+    const supplement = await Supplement.findOneAndUpdate(
+      { _id: supplementId, user: userId },
+      { $set: { status: status, lastStatusUpdate: new Date() } },
+      { new: true }
+    );
 
     if (!supplement) {
       return res.status(404).json({
         success: false,
-        message: 'Supplement not found',
+        message: "Supplement not found",
       });
     }
 
-    supplement.status = status;
-    supplement.lastStatusUpdate = new Date();
-    await supplement.save();
-
+    // 🔹 Work with SupplementStatus (daily log)
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
     const existingStatus = await SupplementStatus.findOne({
-      supplementId: supplementId,
-      userId: userId,
+      supplementId,
+      userId,
       date: {
         $gte: today,
         $lt: new Date(today.getTime() + 24 * 60 * 60 * 1000),
       },
     });
 
-    if (status === 'taken') {
+    if (status === "taken") {
       if (existingStatus) {
-        existingStatus.status = 'taken';
+        existingStatus.status = "taken";
         await existingStatus.save();
       } else {
         await SupplementStatus.create({
-          supplementId: supplementId,
-          userId: userId,
+          supplementId,
+          userId,
           date: new Date(),
-          status: 'taken',
+          status: "taken",
           name: supplement.name,
           day: supplement.day,
         });
       }
     } else {
-      if (existingStatus && existingStatus.status === 'taken') {
+      if (existingStatus && existingStatus.status === "taken") {
         await existingStatus.deleteOne();
       }
     }
 
     res.status(200).json({
       success: true,
+      message: `Supplement '${supplement.name}' updated to '${status}'`,
       data: supplement,
     });
   } catch (error) {
-    console.error('Error in updateSupplementStatus:', error);
+    console.error("Error in updateSupplementStatus:", error);
     res.status(500).json({
       success: false,
-      message: 'Server error',
+      message: "Server error",
       error: error.message,
     });
   }
 };
+
 
 
 

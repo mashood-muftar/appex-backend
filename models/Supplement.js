@@ -1,5 +1,6 @@
 // src/models/Supplement.js
 import mongoose from 'mongoose';
+import { v4 as uuidv4 } from 'uuid';
 
 const SupplementSchema = new mongoose.Schema({
   name: {
@@ -20,6 +21,12 @@ const SupplementSchema = new mongoose.Schema({
     required: [true, 'Please specify a day'],
     min: 0,
     max: 6
+  },
+  pills: {
+    type: Number,
+    required: false,
+    min: [1, 'At least 1 pill is required'],
+    default: 1
   },
   time: {
     type: String,
@@ -62,6 +69,7 @@ const SupplementSchema = new mongoose.Schema({
     type: Date,
     default: null
   },
+  cycleId: { type: String, default: uuidv4 },
   user: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',

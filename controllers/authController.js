@@ -24,6 +24,50 @@ export const addAppointment = async (req, res) => {
   }
 };
 
+// Update (Edit) Appointment
+export const updateAppointment = async (req, res) => {
+  try {
+    const { appointmentId } = req.params;
+    const { title, description, date, time, location } = req.body;
+
+    // Find and update only if appointment belongs to the user
+    const appointment = await Appointment.findOneAndUpdate(
+      { _id: appointmentId, user: req.user._id },
+      { title, description, date, time, location },
+      { new: true, runValidators: true }
+    );
+
+    if (!appointment) {
+      return res.status(404).json({ success: false, message: "Appointment not found" });
+    }
+
+    res.json({ success: true, data: appointment });
+  } catch (err) {
+    res.status(500).json({ success: false, message: "Server error", error: err.message });
+  }
+};
+
+
+// Delete Appointment
+export const deleteAppointment = async (req, res) => {
+  try {
+    const { appointmentId } = req.params;
+
+    const appointment = await Appointment.findOneAndDelete({
+      _id: appointmentId,
+      user: req.user._id
+    });
+
+    if (!appointment) {
+      return res.status(404).json({ success: false, message: "Appointment not found" });
+    }
+
+    res.json({ success: true, message: "Appointment deleted successfully" });
+  } catch (err) {
+    res.status(500).json({ success: false, message: "Server error", error: err.message });
+  }
+};
+
 // Get all
 export const getAppointment = async (req, res) => {
   try {

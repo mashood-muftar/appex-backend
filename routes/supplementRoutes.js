@@ -11,7 +11,10 @@ import {
   getDailyAdherenceStats,
   getTodaySupplements,
   addSchedule,
-  getTodaysSupplements
+  getTodaysSupplements,
+  getTakenSupplements,
+  deleteallortodaysupplement,
+  updateSupplementPills
 } from '../controllers/supplementController.js';
 import { authenticate } from '../middleware/authMiddleware.js';
 import { getDiaryPreview, shareDiary } from '../controllers/diaryController.js';
@@ -34,6 +37,9 @@ router.route('/:id')
   .put(updateSupplement)
   .delete(deleteSupplement);
 
+router.put('/:id/pills', updateSupplementPills);
+router.delete('/:id/delete', deleteallortodaysupplement);
+router.get('/status/taken', getTakenSupplements);
 router.put('/:supplementId/status', updateSupplementStatus);
 router.get('/progress/daily', getDailyAdherenceStats);
 router.post('/:supplementId/schedule', addSchedule);
