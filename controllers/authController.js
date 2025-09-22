@@ -325,6 +325,7 @@ export const login = async (req, res) => {
     delete userResponse.verificationOTP;
 
     res.json({
+      message: 'Login successful testing',
       success: true,
       data: { user: userResponse, token },
     });
