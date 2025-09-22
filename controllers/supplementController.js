@@ -262,7 +262,23 @@ export const createSupplement = async (req, res) => {
     }
 
     // ✅ Save all supplements
-    const savedSupplements = await Supplement.insertMany(supplements);
+    cconst savedSupplements = await Supplement.insertMany(supplements);
+
+    // ✅ Schedule notifications for each supplement
+    for (let supp of savedSupplements) {
+      scheduletNotification(req.user.deviceToken, supp.name, supp.time);
+    
+      const populatedSupplement = await Supplement.findById(supp._id)
+        .populate('user', 'deviceToken notificationSettings');
+    
+      setTimeout(async () => {
+        try {
+          await scheduleStatusCheck(populatedSupplement);
+        } catch (err) {
+          console.error('Error scheduling notifications:', err);
+        }
+      }, 500);
+    }
 
     res.status(201).json({
       success: true,
