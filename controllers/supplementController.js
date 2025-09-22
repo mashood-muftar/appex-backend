@@ -263,7 +263,7 @@ export const createSupplement = async (req, res) => {
     }
 
     // ✅ Save all supplements
-    cconst savedSupplements = await Supplement.insertMany(supplements);
+    const savedSupplements = await Supplement.insertMany(supplements);
 
     // ✅ Schedule notifications for each supplement
     for (let supp of savedSupplements) {
