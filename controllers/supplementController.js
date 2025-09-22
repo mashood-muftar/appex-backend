@@ -161,18 +161,22 @@ export const scheduletNotification = async (deviceToken, name, time) => {
 
 export const createSupplement = async (req, res) => {
   try {
-    const { name, form, reason, day, time, frequency } = req.body;
-    
-    // Validate required fields
-    if (!name || !form || day === undefined || !time) {
+    const { name, form, reason, day, time, frequency, daysOfWeek, cycle, interval } = req.body;
+    // extra fields:
+    // daysOfWeek → [0,2,4] e.g. for Mon, Wed, Fri
+    // cycle → { startDate, endDate, repeat } for recurring
+    // interval → number (for X days / X weeks / X months)
+
+    // ✅ Validate required fields
+    if (!name || !form || !time) {
       return res.status(400).json({
         success: false,
         message: 'Missing required fields',
-        required: ['name', 'form', 'day', 'time']
+        required: ['name', 'form', 'time']
       });
     }
 
-    // Validate time format (HH:MM in 24h)
+    // ✅ Validate time format (HH:MM in 24h)
     if (!/^([01]\d|2[0-3]):([0-5]\d)$/.test(time)) {
       return res.status(400).json({
         success: false,
@@ -181,99 +185,213 @@ export const createSupplement = async (req, res) => {
       });
     }
 
-    console.log('>>>>>>>>>>>>>>>>>>>>>>>>>. ', req.body);
-    
-    
-    scheduletNotification(req.user.deviceToken,name,time);
-    
+    console.log('>>>>>>>>>> Request Body: ', req.body);
+
     let supplements = [];
+    const today = new Date();
+    const currentDay = today.getDay(); // 0=Sunday, 6=Saturday
 
-// const supplements = [];
-const today = new Date();
-const currentDay = today.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
-
-if (frequency === "Every day") {
-  // Create 7 supplements (for days 0–6)
-  for (let i = 0; i <= 6; i++) {
-    supplements.push(new Supplement({
-      name,
-      form,
-      reason,
-      day: i,
-      time,
-      status: 'pending',
-      user: req.user.id,
-      lastStatusUpdate: new Date()
-    }));
-  }
-} else if (frequency === "Every other day") {
-  
-  // Create supplements every other day (for all weeks)
-  for (let i = 0; i <= 6; i++) {
-    // Keep the same even/odd parity as today
-    if ((i - currentDay) % 2 === 0) {
-      supplements.push(new Supplement({
-        name,
-        form,
-        reason,
-        day: i,
-        time,
-        status: 'pending',
-        user: req.user.id,
-        lastStatusUpdate: new Date()
-      }));
+    // 🔹 1. Every day
+    if (frequency === "Every day") {
+      for (let i = 0; i <= 6; i++) {
+        supplements.push(new Supplement({ name, form, reason, day: i, time, status: 'pending', user: req.user.id }));
+      }
     }
-  }
-  
-} else {
-  // Normal single supplement
-  supplements.push(new Supplement({
-    name,
-    form,
-    reason,
-    day,
-    time,
-    status: 'pending',
-    user: req.user.id,
-    lastStatusUpdate: new Date()
-  }));
-}
 
-    // Save all supplements in bulk
-    const savedSupplements = await Supplement.insertMany(supplements);
-
-    // Optionally schedule notifications for each
-    for (let supp of savedSupplements) {
-      const populatedSupplement = await Supplement.findById(supp._id)
-        .populate('user', 'deviceToken notificationSettings');
-
-      setTimeout(async () => {
-        try {
-          await scheduleStatusCheck(populatedSupplement);
-          // console.log(`Scheduled notifications for: ${populatedSupplement.name} (Day ${populatedSupplement.day})`);
-        } catch (err) {
-          console.error('Error scheduling notifications:', err);
+    // 🔹 2. Every other day
+    else if (frequency === "Every other day") {
+      for (let i = 0; i <= 6; i++) {
+        if ((i - currentDay) % 2 === 0) {
+          supplements.push(new Supplement({ name, form, reason, day: i, time, status: 'pending', user: req.user.id }));
         }
-      }, 500);
+      }
     }
+
+    // 🔹 3. Specific days of the week (daysOfWeek array chahiye)
+    else if (frequency === "Specific days of the week" && Array.isArray(daysOfWeek)) {
+      daysOfWeek.forEach(d => {
+        supplements.push(new Supplement({ name, form, reason, day: d, time, status: 'pending', user: req.user.id }));
+      });
+    }
+
+    // 🔹 4. On a recurring cycle (cycle object chahiye)
+    else if (frequency === "On a recurring cycle" && cycle?.startDate && cycle?.repeat) {
+      const start = new Date(cycle.startDate);
+      const end = cycle.endDate ? new Date(cycle.endDate) : new Date(start.getTime() + 30*24*60*60*1000); // default 1 month
+      let current = new Date(start);
+
+      while (current <= end) {
+        supplements.push(new Supplement({
+          name, form, reason, day: current.getDay(), time,
+          status: 'pending', user: req.user.id, cycleDate: current
+        }));
+        current.setDate(current.getDate() + cycle.repeat);
+      }
+    }
+
+    // 🔹 5. Every X days
+    else if (frequency === "Every X days" && interval) {
+      for (let i = 0; i <= 30; i += interval) {
+        const date = new Date(today);
+        date.setDate(date.getDate() + i);
+        supplements.push(new Supplement({ name, form, reason, day: date.getDay(), time, status: 'pending', user: req.user.id, cycleDate: date }));
+      }
+    }
+
+    // 🔹 6. Every X weeks
+    else if (frequency === "Every X weeks" && interval) {
+      for (let i = 0; i <= 12; i += interval) { // 12 weeks = 3 months approx
+        const date = new Date(today);
+        date.setDate(date.getDate() + i*7);
+        supplements.push(new Supplement({ name, form, reason, day: date.getDay(), time, status: 'pending', user: req.user.id, cycleDate: date }));
+      }
+    }
+
+    // 🔹 7. Every X months
+    else if (frequency === "Every X months" && interval) {
+      for (let i = 0; i <= 12; i += interval) {
+        const date = new Date(today);
+        date.setMonth(date.getMonth() + i);
+        supplements.push(new Supplement({ name, form, reason, day: date.getDay(), time, status: 'pending', user: req.user.id, cycleDate: date }));
+      }
+    }
+
+    // 🔹 8. Only as needed
+    else if (frequency === "Only as needed") {
+      supplements.push(new Supplement({ name, form, reason, time, status: 'pending', user: req.user.id }));
+    }
+
+    // ✅ Save all supplements
+    const savedSupplements = await Supplement.insertMany(supplements);
 
     res.status(201).json({
       success: true,
-      message: reason === "Every day" 
-        ? 'Supplements for all days created successfully'
-        : 'Supplement created successfully',
+      message: `Supplements created with frequency: ${frequency}`,
       data: savedSupplements
     });
 
   } catch (error) {
     console.error('Error creating supplement:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Server error',
-      error: error.message
-    });
+    res.status(500).json({ success: false, message: 'Server error', error: error.message });
   }
 };
+
+//working comment for creating another version----///
+// export const createSupplement = async (req, res) => {
+//   try {
+//     const { name, form, reason, day, time, frequency } = req.body;
+    
+//     // Validate required fields
+//     if (!name || !form || day === undefined || !time) {
+//       return res.status(400).json({
+//         success: false,
+//         message: 'Missing required fields',
+//         required: ['name', 'form', 'day', 'time']
+//       });
+//     }
+
+//     // Validate time format (HH:MM in 24h)
+//     if (!/^([01]\d|2[0-3]):([0-5]\d)$/.test(time)) {
+//       return res.status(400).json({
+//         success: false,
+//         message: 'Invalid time format. Please use HH:MM in 24-hour format',
+//         example: '08:30'
+//       });
+//     }
+
+//     console.log('>>>>>>>>>>>>>>>>>>>>>>>>>. ', req.body);
+    
+    
+//     scheduletNotification(req.user.deviceToken,name,time);
+    
+//     let supplements = [];
+
+// // const supplements = [];
+// const today = new Date();
+// const currentDay = today.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
+
+// if (frequency === "Every day") {
+//   // Create 7 supplements (for days 0–6)
+//   for (let i = 0; i <= 6; i++) {
+//     supplements.push(new Supplement({
+//       name,
+//       form,
+//       reason,
+//       day: i,
+//       time,
+//       status: 'pending',
+//       user: req.user.id,
+//       lastStatusUpdate: new Date()
+//     }));
+//   }
+// } else if (frequency === "Every other day") {
+  
+//   // Create supplements every other day (for all weeks)
+//   for (let i = 0; i <= 6; i++) {
+//     // Keep the same even/odd parity as today
+//     if ((i - currentDay) % 2 === 0) {
+//       supplements.push(new Supplement({
+//         name,
+//         form,
+//         reason,
+//         day: i,
+//         time,
+//         status: 'pending',
+//         user: req.user.id,
+//         lastStatusUpdate: new Date()
+//       }));
+//     }
+//   }
+  
+// } else {
+//   // Normal single supplement
+//   supplements.push(new Supplement({
+//     name,
+//     form,
+//     reason,
+//     day,
+//     time,
+//     status: 'pending',
+//     user: req.user.id,
+//     lastStatusUpdate: new Date()
+//   }));
+// }
+
+//     // Save all supplements in bulk
+//     const savedSupplements = await Supplement.insertMany(supplements);
+
+//     // Optionally schedule notifications for each
+//     for (let supp of savedSupplements) {
+//       const populatedSupplement = await Supplement.findById(supp._id)
+//         .populate('user', 'deviceToken notificationSettings');
+
+//       setTimeout(async () => {
+//         try {
+//           await scheduleStatusCheck(populatedSupplement);
+//           // console.log(`Scheduled notifications for: ${populatedSupplement.name} (Day ${populatedSupplement.day})`);
+//         } catch (err) {
+//           console.error('Error scheduling notifications:', err);
+//         }
+//       }, 500);
+//     }
+
+//     res.status(201).json({
+//       success: true,
+//       message: frequency === "Every day" 
+//         ? 'Supplements for all days created successfully'
+//         : 'Supplement created successfully',
+//       data: savedSupplements
+//     });
+
+//   } catch (error) {
+//     console.error('Error creating supplement:', error);
+//     res.status(500).json({
+//       success: false,
+//       message: 'Server error',
+//       error: error.message
+//     });
+//   }
+// };
 
 
 // export const createSupplement = async (req, res) => {
