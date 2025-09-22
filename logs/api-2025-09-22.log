@@ -2,3 +2,9 @@
 {"level":"info","message":"Server is running on http://localhost:5000","service":"apex-biotics-api","timestamp":"2025-09-22 12:21:17"}
 {"level":"info","message":"All supplement notifications scheduled successfully","service":"apex-biotics-api","timestamp":"2025-09-22 12:49:47"}
 {"level":"info","message":"Server is running on http://localhost:5000","service":"apex-biotics-api","timestamp":"2025-09-22 12:49:47"}
+{"level":"info","message":"All supplement notifications scheduled successfully","service":"apex-biotics-api","timestamp":"2025-09-22 12:50:11"}
+{"level":"info","message":"Server is running on http://localhost:5000","service":"apex-biotics-api","timestamp":"2025-09-22 12:50:11"}
+{"level":"info","message":"All supplement notifications scheduled successfully","service":"apex-biotics-api","timestamp":"2025-09-22 12:51:05"}
+{"level":"info","message":"Server is running on http://localhost:5000","service":"apex-biotics-api","timestamp":"2025-09-22 12:51:05"}
+{"level":"http","message":{"duration":"297ms","ip":"::1","method":"POST","requestBody":"{\"email\":\"mashoodhussain100@gmail.com\",\"password\":\"mashood123\"}","requestId":null,"status":200,"url":"/api/auth/login","userAgent":"PostmanRuntime/7.46.0","userId":null},"service":"apex-biotics-api","timestamp":"2025-09-22 12:51:31"}
+{"level":"http","message":"::1 - - [22/Sep/2025:07:51:31 +0000] \"POST /api/auth/login HTTP/1.1\" 200 651 \"-\" \"PostmanRuntime/7.46.0\"","service":"apex-biotics-api","timestamp":"2025-09-22 12:51:31"}
