@@ -219,26 +219,32 @@ export const createSupplement = async (req, res) => {
     if (frequency === "Every day" && day !== undefined) {
       const start = new Date(today);
       const end = new Date(start);
-      end.setFullYear(end.getFullYear() + 1);
+      end.setMonth(end.getMonth() + 1); // 👈 ek mahine tak generate karo
 
       let current = new Date(start);
-      while (current <= end) {
-        if (current.getDay() === day) {
-          supplements.push(
-            new Supplement({
-              name,
-              form,
-              reason,
-              day,
-              time,
-              status: "pending",
-              user: req.user.id,
-              cycleDate: new Date(current),
-              cycleId, // 🔑 add cycleId
-            })
-          );
-        }
+
+      // 🔹 Pehle us din tak le jao jo user ne diya hai (starting day)
+      while (current.getDay() !== day) {
         current.setDate(current.getDate() + 1);
+      }
+
+      // 🔹 Ab har din ek supplement banao
+      while (current <= end) {
+        supplements.push(
+          new Supplement({
+            name,
+            form,
+            reason,
+            day: current.getDay(),   // 👈 actual current day save hoga
+            time,
+            status: "pending",
+            user: req.user.id,
+            cycleDate: new Date(current),
+            cycleId,
+          })
+        );
+
+        current.setDate(current.getDate() + 1); // 👈 har din aage jao
       }
     }
 
@@ -246,17 +252,65 @@ export const createSupplement = async (req, res) => {
     else if (frequency === "Every other day" && day !== undefined) {
       const start = new Date(today);
       const end = new Date(start);
-      end.setFullYear(end.getFullYear() + 1);
+      end.setMonth(end.getMonth() + 1); // 1 month schedule ke liye (ya 1 saal bhi kar sakte ho)
 
       let current = new Date(start);
+
+      // 🔹 Start ko user ke diye gaye din pe le jao
+      while (current.getDay() !== day) {
+        current.setDate(current.getDate() + 1);
+      }
+
+      // 🔹 Pattern define karo (0,2,4,6 agar start 0 hai)
+      const pattern = [];
+      for (let d = day; d < 7; d += 2) {
+        pattern.push(d);
+      }
+
+      // Agar last 6 aaya to wapis se 0,2,4,6 repeat karega
       while (current <= end) {
-        if (current.getDay() === day) {
+        for (let d of pattern) {
+          // current week ke day set karo
+          const nextDate = new Date(current);
+          nextDate.setDate(current.getDate() - current.getDay() + d);
+
+          if (nextDate >= start && nextDate <= end) {
+            supplements.push(
+              new Supplement({
+                name,
+                form,
+                reason,
+                day: d,
+                time,
+                status: "pending",
+                user: req.user.id,
+                cycleDate: nextDate,
+                cycleId,
+              })
+            );
+          }
+        }
+        // 🔹 Next week pe chale jao
+        current.setDate(current.getDate() + 7);
+      }
+    }
+
+    // 🔹 3. Specific days of the week
+    else if (frequency === "Specific days of the week" && Array.isArray(daysOfWeek)) {
+      const start = new Date(today);
+      const end = new Date(start);
+      end.setMonth(end.getMonth() + 1); // 👈 ek mahine ke liye schedule (aap chahe to +3 months, +1 year bhi kar sakte ho)
+
+      let current = new Date(start);
+
+      while (current <= end) {
+        if (daysOfWeek.includes(current.getDay())) {
           supplements.push(
             new Supplement({
               name,
               form,
               reason,
-              day,
+              day: current.getDay(),
               time,
               status: "pending",
               user: req.user.id,
@@ -265,26 +319,8 @@ export const createSupplement = async (req, res) => {
             })
           );
         }
-        current.setDate(current.getDate() + 2);
+        current.setDate(current.getDate() + 1); // 👈 ek din aage badho
       }
-    }
-
-    // 🔹 3. Specific days of the week
-    else if (frequency === "Specific days of the week" && Array.isArray(daysOfWeek)) {
-      daysOfWeek.forEach((d) => {
-        supplements.push(
-          new Supplement({
-            name,
-            form,
-            reason,
-            day: d,
-            time,
-            status: "pending",
-            user: req.user.id,
-            cycleId,
-          })
-        );
-      });
     }
 
     // 🔹 4. On a recurring cycle
