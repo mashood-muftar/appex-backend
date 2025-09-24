@@ -69,6 +69,10 @@ const SupplementSchema = new mongoose.Schema({
     type: Date,
     default: null
   },
+  cycleDate: {
+    type: Date,
+    required: true
+  },
   cycleId: { type: String, default: uuidv4 },
   user: {
     type: mongoose.Schema.Types.ObjectId,

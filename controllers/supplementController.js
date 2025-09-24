@@ -138,46 +138,7 @@ export const getTakenSupplements = async (req, res) => {
 };
 
 
-export const scheduletNotification = async (deviceToken, name, date, time) => {
-  try {
-    // 1️⃣ Current time
-    const now = new Date();
 
-    // 2️⃣ Split time
-    const [hours, minutes] = time.split(":").map(Number);
-
-    // 3️⃣ Target = given cycle date + time
-    let target = new Date(date);
-    target.setHours(hours, minutes, 0, 0);
-
-    // 4️⃣ Skip if target already passed
-    if (target <= now) {
-      console.log(`⚠️ Skipping past notification for ${target}`);
-      return;
-    }
-
-    // 5️⃣ Calculate delay
-    let diffMs = target.getTime() - now.getTime();
-
-    // 🔹 Agar tumhe notification 5 ghante pehle bhejna ho:
-    // diffMs = diffMs - 5 * 60 * 60 * 1000;
-
-    console.log(
-      `⏳ Scheduling notification for ${target.toLocaleString()} (in ${Math.round(diffMs / 1000 / 60)} minutes)`
-    );
-
-    // 6️⃣ Schedule notification
-    setTimeout(async () => {
-      try {
-        sendTestNotification(deviceToken, name, time);
-      } catch (err) {
-        console.error("❌ Failed to send push:", err);
-      }
-    }, diffMs);
-  } catch (error) {
-    console.error("❌ Schedule error:", error);
-  }
-};
 // export const scheduletNotification = async (deviceToken, name, time) => {
 //   // try {
 //     // const { deviceToken, name, time } = req.body; 
@@ -226,7 +187,45 @@ export const scheduletNotification = async (deviceToken, name, date, time) => {
 //   // }
 // };
 
+export const scheduletNotification = async (deviceToken, name, date, time) => {
+  const now = new Date();
 
+  // Split HH:mm
+  const [hours, minutes] = time.split(":").map(Number);
+
+  // Build target date with correct time
+  let target = new Date(date);
+  target.setHours(hours, minutes, 0, 0);
+
+  // Agar target past me hai → next day push karo
+  if (target <= now) {
+    target.setDate(target.getDate() + 1);
+  }
+
+  // Calculate delay
+  let diffMs = target.getTime() - now.getTime();
+
+  // (Optional) 5h pehle bhejna ho to ye line rakho
+     diffMs = diffMs - 300 * 60 * 1000;
+
+  // Safety: Node.js limit ~24.8 days
+  if (diffMs > 2147483647) {
+    console.log("⚠️ Delay too long, skipping direct setTimeout. Use cron instead.");
+    return;
+  }
+
+  console.log(
+    `⏳ Scheduling notification for ${target.toLocaleString()} (in ${Math.round(diffMs / 1000 / 60)} minutes)`
+  );
+
+  setTimeout(async () => {
+    try {
+      sendTestNotification(deviceToken, name, time);
+    } catch (err) {
+      console.error("❌ Failed to send push:", err);
+    }
+  }, diffMs);
+};
 export const createSupplement = async (req, res) => {
   try {
     const { name, form, reason, day, time, frequency, daysOfWeek, cycle, interval } = req.body;
@@ -487,7 +486,13 @@ export const createSupplement = async (req, res) => {
 
     //✅ Schedule notifications
     for (let supp of savedSupplements) {
-      scheduletNotification(req.user.deviceToken, supp.name, supp.cycleDate, supp.time);
+      console.log(">>> Supplement created:", supp.name, supp.cycleDate);
+
+      if (!supp.cycleDate) {
+        console.error("❌ Missing cycleDate for supplement:", supp);
+        continue; // skip scheduling
+      }
+      scheduletNotification(req.user.deviceToken, supp.name, new Date(supp.cycleDate), supp.time);
 
       const populatedSupplement = await Supplement.findById(supp._id).populate(
         "user",
@@ -610,132 +615,6 @@ export const addSchedule = async (req, res) => {
     });
   }
 };
-
-//  export const createSupplement = async (req, res) => {
-// // //   try {
-// // //     const {
-// // //       name,
-// // //       form,
-// // //       reason,
-// // //       day,
-// // //       time
-// // //     } = req.body;
-    
-// // //     // Validate required fields
-// // //     if (!name || !form || day === undefined || !time) {
-// // //       return res.status(400).json({
-// // //         success: false,
-// // //         message: 'Missing required fields',
-// // //         required: ['name', 'form', 'day', 'time']
-// // //       });
-// // //     }
-    
-// // //     // Validate time format (HH:MM)
-// // //     if (!/^([01]\d|2[0-3]):([0-5]\d)$/.test(time)) {
-// // //       return res.status(400).json({
-// // //         success: false,
-// // //         message: 'Invalid time format. Please use HH:MM in 24-hour format',
-// // //         example: '08:30'
-// // //       });
-// // //     }
-    
-// // //     // Validate day (0-6 for Sunday-Saturday)
-// // //     if (day < 0 || day > 6) {
-// // //       return res.status(400).json({
-// // //         success: false,
-// // //         message: 'Invalid day. Must be between 0 (Sunday) and 6 (Saturday)',
-// // //       });
-// // //     }
-    
-// // //     // Create new supplement
-// // //     const supplement = new Supplement({
-// // //       name,
-// // //       form,
-// // //       reason,
-// // //       day,
-// // //       time,
-// // //       status: 'pending',
-// // //       user: req.user.id,
-// // //       lastStatusUpdate: new Date()
-// // //     });
-    
-// // //     console.log(`Creating supplement: ${name}, Day: ${day}, Time: ${time}`);
-    
-// // //     // Save supplement to database
-// // //     await supplement.save();
-    
-// // //     // Populate user data for scheduling
-// // //     const populatedSupplement = await Supplement.findById(supplement._id)
-// // //       .populate('user', 'deviceToken notificationSettings');
-    
-// // //     // Schedule notifications (with a small delay to ensure database operations are complete)
-// // //     console.log(`Scheduling notifications for new supplement: ${supplement._id}`);
-// // //     setTimeout(async () => {
-// // //       try {
-// // //         await scheduleStatusCheck(populatedSupplement);
-// // //         console.log(`Successfully scheduled notifications for: ${supplement.name}`);
-// // //       } catch (scheduleError) {
-// // //         console.error('Error scheduling notifications:', scheduleError);
-// // //       }
-// // //     }, 500);
-    
-// // //     res.status(201).json({
-// // //       success: true,
-// // //       message: 'Supplement created successfully with notifications scheduled',
-// // //       data: supplement
-// // //     });
-// // //   } catch (error) {
-// // //     console.error('Error creating supplement:', error);
-// // //     res.status(500).json({
-// // //       success: false,
-// // //       message: 'Server error',
-// // //       error: error.message
-// // //     });
-// // //   }
-// // // };
-
-// // // // Add schedule to existing supplement (second screen)
-// // // export const addSchedule = async (req, res) => {
-// // //   try {
-// // //     const { supplementId } = req.params;
-// // //     const { startDate, endDate } = req.body;
-    
-// // //     const supplement = await Supplement.findOne({ 
-// // //       _id: supplementId, 
-// // //       user: req.user.id 
-// // //     });
-    
-// // //     if (!supplement) {
-// // //       return res.status(404).json({
-// // //         success: false,
-// // //         message: 'Supplement not found'
-// // //       });
-// // //     }
-    
-// //     // Update schedule with date range
-// //     supplement.schedule = {
-// //       startDate: startDate || supplement.schedule.startDate,
-// //       endDate: endDate || supplement.schedule.endDate
-// //     };
-    
-// //     await supplement.save();
-    
-
-   
-    
-// //     res.json({
-// //       success: true,
-// //       data: supplement
-// //     });
-// //   } catch (error) {
-// //     res.status(500).json({
-// //       success: false,
-// //       message: 'Server error',
-// //       error: error.message
-// //     });
-// //   }
-// // };
-
 
 export const updateSupplement = async (req, res) => {
   try {
