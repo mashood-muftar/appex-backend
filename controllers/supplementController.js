@@ -258,6 +258,9 @@ export const createSupplement = async (req, res) => {
       return d;
     };
 
+    console.log(frequency);
+    return;
+
     // 🔹 1. Every day
     if (frequency == "Every day") {
       
