@@ -209,9 +209,9 @@ export const scheduletNotification = async (deviceToken, name, date, time) => {
     return;
   }
 
-  console.log(
-    `⏳ Scheduling notification for ${target.toLocaleString()} (in ${Math.round(diffMs / 1000 / 60)} minutes)`
-  );
+  // console.log(
+  //   `⏳ Scheduling notification for ${target.toLocaleString()} (in ${Math.round(diffMs / 1000 / 60)} minutes)`
+  // );
 
   setTimeout(async () => {
     try {
@@ -222,304 +222,304 @@ export const scheduletNotification = async (deviceToken, name, date, time) => {
   }, diffMs);
 };
 
-// export const createSupplement = async (req, res) => {
-//   try {
-//     const { name, form, reason, day, time, frequency, daysOfWeek, cycle, interval } = req.body;
+export const createSupplement = async (req, res) => {
+  try {
+    const { name, form, reason, day, time, frequency, daysOfWeek, cycle, interval } = req.body;
 
-//     // ✅ Validate required fields
-//     if (!name || !form || !time) {
-//       return res.status(400).json({
-//         success: false,
-//         message: "Missing required fields",
-//         required: ["name", "form", "time"],
-//       });
-//     }
+    // ✅ Validate required fields
+    if (!name || !form || !time) {
+      return res.status(400).json({
+        success: false,
+        message: "Missing required fields",
+        required: ["name", "form", "time"],
+      });
+    }
 
-//     // ✅ Validate time format (HH:MM in 24h)
-//     if (!/^([01]\d|2[0-3]):([0-5]\d)$/.test(time)) {
-//       return res.status(400).json({
-//         success: false,
-//         message: "Invalid time format. Please use HH:MM in 24-hour format",
-//         example: "08:30",
-//       });
-//     }
+    // ✅ Validate time format (HH:MM in 24h)
+    if (!/^([01]\d|2[0-3]):([0-5]\d)$/.test(time)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid time format. Please use HH:MM in 24-hour format",
+        example: "08:30",
+      });
+    }
 
-//     console.log(">>>>>>>>>> Request Body: ", req.body);
+    console.log(">>>>>>>>>> Request Body: ", req.body);
 
-//     let supplements = [];
-//     const today = new Date();
-//     const cycleId = uuidv4(); // 🔑 unique id for this cycle
+    let supplements = [];
+    const today = new Date();
+    const cycleId = uuidv4(); // 🔑 unique id for this cycle
 
-//     // Helper: merge date + time
-//     const withTime = (date, timeStr) => {
-//       const [hours, minutes] = timeStr.split(":").map(Number);
-//       const d = new Date(date);
-//       d.setHours(hours, minutes, 0, 0);
-//       return d;
-//     };
+    // Helper: merge date + time
+    const withTime = (date, timeStr) => {
+      const [hours, minutes] = timeStr.split(":").map(Number);
+      const d = new Date(date);
+      d.setHours(hours, minutes, 0, 0);
+      return d;
+    };
 
-//     console.log(frequency);
-//     return;
+    console.log(frequency);
+    return;
 
-//     // 🔹 1. Every day
-//     if (frequency == "Every day") {
+    // 🔹 1. Every day
+    if (frequency == "Every day") {
       
-//     console.log("frequency === Every day");
-//       const start = new Date(today);
-//       const end = new Date(start);
-//       end.setMonth(end.getMonth() + 1);
+    console.log("frequency === Every day");
+      const start = new Date(today);
+      const end = new Date(start);
+      end.setMonth(end.getMonth() + 1);
 
-//       let current = new Date(start);
-//       while (current.getDay() !== day) {
-//         current.setDate(current.getDate() + 1);
-//       }
+      let current = new Date(start);
+      while (current.getDay() !== day) {
+        current.setDate(current.getDate() + 1);
+      }
 
       
 
-//       while (current <= end) {
+      while (current <= end) {
         
-//     console.log("frequency === Every day",current.getDate());
+    console.log("frequency === Every day",current.getDate());
         
-//         supplements.push(
-//           new Supplement({
-//             name,
-//             form,
-//             reason,
-//             day: current.getDay(),
-//             time,
-//             date:current.getDate(),
-//             status: "pending",
-//             user: req.user.id,
-//             cycleDate: withTime(current, time),
-//             cycleId,
-//           })
-//         );
-//         current.setDate(current.getDate() + 1);
-//       }
-//     }
+        supplements.push(
+          new Supplement({
+            name,
+            form,
+            reason,
+            day: current.getDay(),
+            time,
+            date:current.getDate(),
+            status: "pending",
+            user: req.user.id,
+            cycleDate: withTime(current, time),
+            cycleId,
+          })
+        );
+        current.setDate(current.getDate() + 1);
+      }
+    }
 
-//     // 🔹 2. Every other day
-//     else if (frequency === "Every other day" && day !== undefined) {
-//       const start = new Date(today);
-//       const end = new Date(start);
-//       end.setMonth(end.getMonth() + 1);
+    // 🔹 2. Every other day
+    else if (frequency === "Every other day" && day !== undefined) {
+      const start = new Date(today);
+      const end = new Date(start);
+      end.setMonth(end.getMonth() + 1);
 
-//       let current = new Date(start);
-//       while (current.getDay() !== day) {
-//         current.setDate(current.getDate() + 1);
-//       }
+      let current = new Date(start);
+      while (current.getDay() !== day) {
+        current.setDate(current.getDate() + 1);
+      }
 
-//       const pattern = [];
-//       for (let d = day; d < 7; d += 2) {
-//         pattern.push(d);
-//       }
+      const pattern = [];
+      for (let d = day; d < 7; d += 2) {
+        pattern.push(d);
+      }
 
-//       while (current <= end) {
-//         for (let d of pattern) {
-//           const nextDate = new Date(current);
-//           nextDate.setDate(current.getDate() - current.getDay() + d);
+      while (current <= end) {
+        for (let d of pattern) {
+          const nextDate = new Date(current);
+          nextDate.setDate(current.getDate() - current.getDay() + d);
 
-//           if (nextDate >= start && nextDate <= end) {
-//             supplements.push(
-//               new Supplement({
-//                 name,
-//                 form,
-//                 reason,
-//                 day: d,
-//                 time,
-//                 status: "pending",
-//                 user: req.user.id,
-//                 cycleDate: withTime(nextDate, time),
-//                 cycleId,
-//               })
-//             );
-//           }
-//         }
-//         current.setDate(current.getDate() + 7);
-//       }
-//     }
+          if (nextDate >= start && nextDate <= end) {
+            supplements.push(
+              new Supplement({
+                name,
+                form,
+                reason,
+                day: d,
+                time,
+                status: "pending",
+                user: req.user.id,
+                cycleDate: withTime(nextDate, time),
+                cycleId,
+              })
+            );
+          }
+        }
+        current.setDate(current.getDate() + 7);
+      }
+    }
 
-//     // 🔹 3. Specific days of the week
-//     else if (frequency === "Specific days of the week" && Array.isArray(daysOfWeek)) {
-//       const start = new Date(today);
-//       const end = new Date(start);
-//       end.setMonth(end.getMonth() + 1);
+    // 🔹 3. Specific days of the week
+    else if (frequency === "Specific days of the week" && Array.isArray(daysOfWeek)) {
+      const start = new Date(today);
+      const end = new Date(start);
+      end.setMonth(end.getMonth() + 1);
 
-//       let current = new Date(start);
-//       while (current <= end) {
-//         if (daysOfWeek.includes(current.getDay())) {
-//           supplements.push(
-//             new Supplement({
-//               name,
-//               form,
-//               reason,
-//               day: current.getDay(),
-//               time,
-//               status: "pending",
-//               user: req.user.id,
-//               cycleDate: withTime(current, time),
-//               cycleId,
-//             })
-//           );
-//         }
-//         current.setDate(current.getDate() + 1);
-//       }
-//     }
+      let current = new Date(start);
+      while (current <= end) {
+        if (daysOfWeek.includes(current.getDay())) {
+          supplements.push(
+            new Supplement({
+              name,
+              form,
+              reason,
+              day: current.getDay(),
+              time,
+              status: "pending",
+              user: req.user.id,
+              cycleDate: withTime(current, time),
+              cycleId,
+            })
+          );
+        }
+        current.setDate(current.getDate() + 1);
+      }
+    }
 
-//     // 🔹 4. On a recurring cycle
-//     else if (frequency === "On a recurring cycle" && cycle?.startDate && cycle?.repeat) {
-//       const start = new Date(cycle.startDate);
-//       const end = cycle.endDate ? new Date(cycle.endDate) : new Date(start.getTime() + 30 * 24 * 60 * 60 * 1000);
+    // 🔹 4. On a recurring cycle
+    else if (frequency === "On a recurring cycle" && cycle?.startDate && cycle?.repeat) {
+      const start = new Date(cycle.startDate);
+      const end = cycle.endDate ? new Date(cycle.endDate) : new Date(start.getTime() + 30 * 24 * 60 * 60 * 1000);
 
-//       let current = new Date(start);
-//       while (current <= end) {
-//         supplements.push(
-//           new Supplement({
-//             name,
-//             form,
-//             reason,
-//             day: current.getDay(),
-//             time,
-//             status: "pending",
-//             user: req.user.id,
-//             cycleDate: withTime(current, time),
-//             cycleId,
-//           })
-//         );
-//         current.setDate(current.getDate() + cycle.repeat);
-//       }
-//     }
+      let current = new Date(start);
+      while (current <= end) {
+        supplements.push(
+          new Supplement({
+            name,
+            form,
+            reason,
+            day: current.getDay(),
+            time,
+            status: "pending",
+            user: req.user.id,
+            cycleDate: withTime(current, time),
+            cycleId,
+          })
+        );
+        current.setDate(current.getDate() + cycle.repeat);
+      }
+    }
 
-//     // 🔹 5. Every X days
-//     else if (frequency === "Every X days" && day !== undefined) {
-//       const start = new Date(today);
-//       const end = new Date(start);
-//       end.setMonth(end.getMonth() + 1);
+    // 🔹 5. Every X days
+    else if (frequency === "Every X days" && day !== undefined) {
+      const start = new Date(today);
+      const end = new Date(start);
+      end.setMonth(end.getMonth() + 1);
 
-//       let current = new Date(start);
-//       while (current <= end) {
-//         if (current.getDay() === day) {
-//           supplements.push(
-//             new Supplement({
-//               name,
-//               form,
-//               reason,
-//               day: current.getDay(),
-//               time,
-//               status: "pending",
-//               user: req.user.id,
-//               cycleDate: withTime(current, time),
-//               cycleId,
-//             })
-//           );
-//         }
-//         current.setDate(current.getDate() + 1);
-//       }
-//     }
+      let current = new Date(start);
+      while (current <= end) {
+        if (current.getDay() === day) {
+          supplements.push(
+            new Supplement({
+              name,
+              form,
+              reason,
+              day: current.getDay(),
+              time,
+              status: "pending",
+              user: req.user.id,
+              cycleDate: withTime(current, time),
+              cycleId,
+            })
+          );
+        }
+        current.setDate(current.getDate() + 1);
+      }
+    }
 
-//     // 🔹 6. Every X weeks
-//     else if (frequency === "Every X weeks" && interval) {
-//       const start = new Date(today);
-//       const end = new Date(start);
-//       end.setMonth(end.getMonth() + 3);
+    // 🔹 6. Every X weeks
+    else if (frequency === "Every X weeks" && interval) {
+      const start = new Date(today);
+      const end = new Date(start);
+      end.setMonth(end.getMonth() + 3);
 
-//       let current = new Date(start);
-//       while (current <= end) {
-//         supplements.push(
-//           new Supplement({
-//             name,
-//             form,
-//             reason,
-//             day: current.getDay(),
-//             time,
-//             status: "pending",
-//             user: req.user.id,
-//             cycleDate: withTime(current, time),
-//             cycleId,
-//           })
-//         );
-//         current.setDate(current.getDate() + interval * 7);
-//       }
-//     }
+      let current = new Date(start);
+      while (current <= end) {
+        supplements.push(
+          new Supplement({
+            name,
+            form,
+            reason,
+            day: current.getDay(),
+            time,
+            status: "pending",
+            user: req.user.id,
+            cycleDate: withTime(current, time),
+            cycleId,
+          })
+        );
+        current.setDate(current.getDate() + interval * 7);
+      }
+    }
 
-//     // 🔹 7. Every X months
-//     else if (frequency === "Every X months" && interval) {
-//       const start = new Date(today);
-//       const end = new Date(start);
-//       end.setFullYear(end.getFullYear() + 1);
+    // 🔹 7. Every X months
+    else if (frequency === "Every X months" && interval) {
+      const start = new Date(today);
+      const end = new Date(start);
+      end.setFullYear(end.getFullYear() + 1);
 
-//       let current = new Date(start);
-//       while (current <= end) {
-//         supplements.push(
-//           new Supplement({
-//             name,
-//             form,
-//             reason,
-//             day: current.getDay(),
-//             time,
-//             status: "pending",
-//             user: req.user.id,
-//             cycleDate: withTime(current, time),
-//             cycleId,
-//           })
-//         );
-//         current.setMonth(current.getMonth() + interval);
-//       }
-//     }
+      let current = new Date(start);
+      while (current <= end) {
+        supplements.push(
+          new Supplement({
+            name,
+            form,
+            reason,
+            day: current.getDay(),
+            time,
+            status: "pending",
+            user: req.user.id,
+            cycleDate: withTime(current, time),
+            cycleId,
+          })
+        );
+        current.setMonth(current.getMonth() + interval);
+      }
+    }
 
-//     // 🔹 8. Only as needed
-//     else if (frequency === "Only as needed") {
-//       supplements.push(
-//         new Supplement({
-//           name,
-//           form,
-//           reason,
-//           time,
-//           status: "pending",
-//           user: req.user.id,
-//           cycleId,
-//         })
-//       );
-//     }
+    // 🔹 8. Only as needed
+    else if (frequency === "Only as needed") {
+      supplements.push(
+        new Supplement({
+          name,
+          form,
+          reason,
+          time,
+          status: "pending",
+          user: req.user.id,
+          cycleId,
+        })
+      );
+    }
 
-//     // ✅ Save all supplements
-//     const savedSupplements = await Supplement.insertMany(supplements);
+    // ✅ Save all supplements
+    const savedSupplements = await Supplement.insertMany(supplements);
 
-//     // ✅ Schedule notifications
-//     for (let supp of savedSupplements) {
-//       console.log(">>> Supplement created:", supp.name, supp.cycleDate);
+    // ✅ Schedule notifications
+    for (let supp of savedSupplements) {
+      console.log(">>> Supplement created:", supp.name, supp.cycleDate);
 
-//       if (!supp.cycleDate) {
-//         console.error("❌ Missing cycleDate for supplement:", supp);
-//         continue;
-//       }
+      if (!supp.cycleDate) {
+        console.error("❌ Missing cycleDate for supplement:", supp);
+        continue;
+      }
 
-//       scheduletNotification(req.user.deviceToken, supp.name, supp.cycleDate, supp.time);
+      scheduletNotification(req.user.deviceToken, supp.name, supp.cycleDate, supp.time);
 
-//       const populatedSupplement = await Supplement.findById(supp._id).populate(
-//         "user",
-//         "deviceToken notificationSettings"
-//       );
+      const populatedSupplement = await Supplement.findById(supp._id).populate(
+        "user",
+        "deviceToken notificationSettings"
+      );
 
-//       setTimeout(async () => {
-//         try {
-//           await scheduleStatusCheck(populatedSupplement);
-//         } catch (err) {
-//           console.error("Error scheduling status check:", err);
-//         }
-//       }, 500);
-//     }
+      setTimeout(async () => {
+        try {
+          await scheduleStatusCheck(populatedSupplement);
+        } catch (err) {
+          console.error("Error scheduling status check:", err);
+        }
+      }, 500);
+    }
 
-//     res.status(201).json({
-//       success: true,
-//       message: `Supplements created with frequency: ${frequency}`,
-//       data: savedSupplements,
-//     });
-//   } catch (error) {
-//     console.error("Error creating supplement:", error);
-//     res.status(500).json({ success: false, message: "Server error", error: error.message });
-//   }
-// };
+    res.status(201).json({
+      success: true,
+      message: `Supplements created with frequency: ${frequency}`,
+      data: savedSupplements,
+    });
+  } catch (error) {
+    console.error("Error creating supplement:", error);
+    res.status(500).json({ success: false, message: "Server error", error: error.message });
+  }
+};
 
 
 export const deleteallortodaysupplement = async (req, res) => {
