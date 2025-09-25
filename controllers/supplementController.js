@@ -202,7 +202,7 @@ export const scheduletNotification = async (deviceToken, name, date, time) => {
   let diffMs = target.getTime() - now.getTime();
 
   // (Optional) Agar 5h pehle bhejna hai
-  // diffMs = diffMs - 300 * 60 * 1000;
+   diffMs = diffMs - 300 * 60 * 1000;
 
   if (diffMs > 2147483647) {
     console.log("⚠️ Delay too long, skipping direct setTimeout. Use cron instead.");
