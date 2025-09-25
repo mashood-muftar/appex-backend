@@ -190,25 +190,20 @@ export const getTakenSupplements = async (req, res) => {
 export const scheduletNotification = async (deviceToken, name, date, time) => {
   const now = new Date();
 
-  // Split HH:mm
-  const [hours, minutes] = time.split(":").map(Number);
-
-  // Build target date with correct time
+  // Date already has time included
   let target = new Date(date);
-  target.setHours(hours, minutes, 0, 0);
 
-  // Agar target past me hai → next day push karo
+  // Agar target already past hai → skip (ya DB mein mark karo "missed")
   if (target <= now) {
-    target.setDate(target.getDate() + 1);
+    console.log(`⚠️ Skipping past schedule for ${target.toLocaleString()}`);
+    return;
   }
 
-  // Calculate delay
   let diffMs = target.getTime() - now.getTime();
 
-  // (Optional) 5h pehle bhejna ho to ye line rakho
-     diffMs = diffMs - 300 * 60 * 1000;
+  // (Optional) Agar 5h pehle bhejna hai
+  // diffMs = diffMs - 300 * 60 * 1000;
 
-  // Safety: Node.js limit ~24.8 days
   if (diffMs > 2147483647) {
     console.log("⚠️ Delay too long, skipping direct setTimeout. Use cron instead.");
     return;
@@ -220,12 +215,13 @@ export const scheduletNotification = async (deviceToken, name, date, time) => {
 
   setTimeout(async () => {
     try {
-      sendTestNotification(deviceToken, name, time);
+      sendTestNotification(deviceToken, name, target.toLocaleTimeString());
     } catch (err) {
       console.error("❌ Failed to send push:", err);
     }
   }, diffMs);
 };
+
 export const createSupplement = async (req, res) => {
   try {
     const { name, form, reason, day, time, frequency, daysOfWeek, cycle, interval } = req.body;
@@ -252,39 +248,42 @@ export const createSupplement = async (req, res) => {
 
     let supplements = [];
     const today = new Date();
-    const currentDay = today.getDay(); // 0=Sunday, 6=Saturday
-    const cycleId = uuidv4(); // 🔑 ek unique id poore cycle ke liye
+    const cycleId = uuidv4(); // 🔑 unique id for this cycle
+
+    // Helper: merge date + time
+    const withTime = (date, timeStr) => {
+      const [hours, minutes] = timeStr.split(":").map(Number);
+      const d = new Date(date);
+      d.setHours(hours, minutes, 0, 0);
+      return d;
+    };
 
     // 🔹 1. Every day
     if (frequency === "Every day" && day !== undefined) {
       const start = new Date(today);
       const end = new Date(start);
-      end.setMonth(end.getMonth() + 1); // 👈 ek mahine tak generate karo
+      end.setMonth(end.getMonth() + 1);
 
       let current = new Date(start);
-
-      // 🔹 Pehle us din tak le jao jo user ne diya hai (starting day)
       while (current.getDay() !== day) {
         current.setDate(current.getDate() + 1);
       }
 
-      // 🔹 Ab har din ek supplement banao
       while (current <= end) {
         supplements.push(
           new Supplement({
             name,
             form,
             reason,
-            day: current.getDay(),   // 👈 actual current day save hoga
+            day: current.getDay(),
             time,
             status: "pending",
             user: req.user.id,
-            cycleDate: new Date(current),
+            cycleDate: withTime(current, time),
             cycleId,
           })
         );
-
-        current.setDate(current.getDate() + 1); // 👈 har din aage jao
+        current.setDate(current.getDate() + 1);
       }
     }
 
@@ -292,25 +291,20 @@ export const createSupplement = async (req, res) => {
     else if (frequency === "Every other day" && day !== undefined) {
       const start = new Date(today);
       const end = new Date(start);
-      end.setMonth(end.getMonth() + 1); // 1 month schedule ke liye (ya 1 saal bhi kar sakte ho)
+      end.setMonth(end.getMonth() + 1);
 
       let current = new Date(start);
-
-      // 🔹 Start ko user ke diye gaye din pe le jao
       while (current.getDay() !== day) {
         current.setDate(current.getDate() + 1);
       }
 
-      // 🔹 Pattern define karo (0,2,4,6 agar start 0 hai)
       const pattern = [];
       for (let d = day; d < 7; d += 2) {
         pattern.push(d);
       }
 
-      // Agar last 6 aaya to wapis se 0,2,4,6 repeat karega
       while (current <= end) {
         for (let d of pattern) {
-          // current week ke day set karo
           const nextDate = new Date(current);
           nextDate.setDate(current.getDate() - current.getDay() + d);
 
@@ -324,13 +318,12 @@ export const createSupplement = async (req, res) => {
                 time,
                 status: "pending",
                 user: req.user.id,
-                cycleDate: nextDate,
+                cycleDate: withTime(nextDate, time),
                 cycleId,
               })
             );
           }
         }
-        // 🔹 Next week pe chale jao
         current.setDate(current.getDate() + 7);
       }
     }
@@ -339,10 +332,9 @@ export const createSupplement = async (req, res) => {
     else if (frequency === "Specific days of the week" && Array.isArray(daysOfWeek)) {
       const start = new Date(today);
       const end = new Date(start);
-      end.setMonth(end.getMonth() + 1); // 👈 ek mahine ke liye schedule (aap chahe to +3 months, +1 year bhi kar sakte ho)
+      end.setMonth(end.getMonth() + 1);
 
       let current = new Date(start);
-
       while (current <= end) {
         if (daysOfWeek.includes(current.getDay())) {
           supplements.push(
@@ -354,23 +346,21 @@ export const createSupplement = async (req, res) => {
               time,
               status: "pending",
               user: req.user.id,
-              cycleDate: new Date(current),
+              cycleDate: withTime(current, time),
               cycleId,
             })
           );
         }
-        current.setDate(current.getDate() + 1); // 👈 ek din aage badho
+        current.setDate(current.getDate() + 1);
       }
     }
 
     // 🔹 4. On a recurring cycle
     else if (frequency === "On a recurring cycle" && cycle?.startDate && cycle?.repeat) {
       const start = new Date(cycle.startDate);
-      const end = cycle.endDate
-        ? new Date(cycle.endDate)
-        : new Date(start.getTime() + 30 * 24 * 60 * 60 * 1000);
-      let current = new Date(start);
+      const end = cycle.endDate ? new Date(cycle.endDate) : new Date(start.getTime() + 30 * 24 * 60 * 60 * 1000);
 
+      let current = new Date(start);
       while (current <= end) {
         supplements.push(
           new Supplement({
@@ -381,7 +371,7 @@ export const createSupplement = async (req, res) => {
             time,
             status: "pending",
             user: req.user.id,
-            cycleDate: current,
+            cycleDate: withTime(current, time),
             cycleId,
           })
         );
@@ -407,7 +397,7 @@ export const createSupplement = async (req, res) => {
               time,
               status: "pending",
               user: req.user.id,
-              cycleDate: new Date(current),
+              cycleDate: withTime(current, time),
               cycleId,
             })
           );
@@ -433,7 +423,7 @@ export const createSupplement = async (req, res) => {
             time,
             status: "pending",
             user: req.user.id,
-            cycleDate: new Date(current),
+            cycleDate: withTime(current, time),
             cycleId,
           })
         );
@@ -458,7 +448,7 @@ export const createSupplement = async (req, res) => {
             time,
             status: "pending",
             user: req.user.id,
-            cycleDate: new Date(current),
+            cycleDate: withTime(current, time),
             cycleId,
           })
         );
@@ -484,15 +474,16 @@ export const createSupplement = async (req, res) => {
     // ✅ Save all supplements
     const savedSupplements = await Supplement.insertMany(supplements);
 
-    //✅ Schedule notifications
+    // ✅ Schedule notifications
     for (let supp of savedSupplements) {
       console.log(">>> Supplement created:", supp.name, supp.cycleDate);
 
       if (!supp.cycleDate) {
         console.error("❌ Missing cycleDate for supplement:", supp);
-        continue; // skip scheduling
+        continue;
       }
-      scheduletNotification(req.user.deviceToken, supp.name, new Date(supp.cycleDate), supp.time);
+
+      scheduletNotification(req.user.deviceToken, supp.name, supp.cycleDate, supp.time);
 
       const populatedSupplement = await Supplement.findById(supp._id).populate(
         "user",
@@ -503,7 +494,7 @@ export const createSupplement = async (req, res) => {
         try {
           await scheduleStatusCheck(populatedSupplement);
         } catch (err) {
-          console.error("Error scheduling notifications:", err);
+          console.error("Error scheduling status check:", err);
         }
       }, 500);
     }
@@ -515,9 +506,7 @@ export const createSupplement = async (req, res) => {
     });
   } catch (error) {
     console.error("Error creating supplement:", error);
-    res
-      .status(500)
-      .json({ success: false, message: "Server error", error: error.message });
+    res.status(500).json({ success: false, message: "Server error", error: error.message });
   }
 };
 
