@@ -260,6 +260,8 @@ export const createSupplement = async (req, res) => {
 
     // 🔹 1. Every day
     if (frequency === "Every day" && day !== undefined) {
+      
+    console.log("frequency === Every day");
       const start = new Date(today);
       const end = new Date(start);
       end.setMonth(end.getMonth() + 1);
@@ -269,7 +271,12 @@ export const createSupplement = async (req, res) => {
         current.setDate(current.getDate() + 1);
       }
 
+      
+
       while (current <= end) {
+        
+    console.log("frequency === Every day",current.getDate());
+        
         supplements.push(
           new Supplement({
             name,
