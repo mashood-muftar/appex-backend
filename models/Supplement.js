@@ -34,7 +34,6 @@ const SupplementSchema = new mongoose.Schema({
     default: '08:00', // Format: "HH:MM" in 24-hour format
     validate: {
       validator: function(v) {
-        // Basic validation for HH:MM format
         return /^([01]\d|2[0-3]):([0-5]\d)$/.test(v);
       },
       message: props => `${props.value} is not a valid time format! Use HH:MM (24-hour format)`
@@ -50,7 +49,6 @@ const SupplementSchema = new mongoose.Schema({
       default: null,
       validate: {
         validator: function(v) {
-          // If both dates are provided, ensure endDate is after startDate
           if (this.startDate && v) {
             return v >= this.startDate;
           }
@@ -69,11 +67,20 @@ const SupplementSchema = new mongoose.Schema({
     type: Date,
     default: null
   },
+
+  // 🔹 New explicit date field
+  date: {
+    type: Date,
+    required: true,
+    default: Date.now
+  },
+
   cycleDate: {
     type: Date,
     required: true
   },
   cycleId: { type: String, default: uuidv4 },
+
   user: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
