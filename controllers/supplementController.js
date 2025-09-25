@@ -277,6 +277,7 @@ export const createSupplement = async (req, res) => {
             reason,
             day: current.getDay(),
             time,
+            date:current.getDate(),
             status: "pending",
             user: req.user.id,
             cycleDate: withTime(current, time),
