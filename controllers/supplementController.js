@@ -259,7 +259,7 @@ export const createSupplement = async (req, res) => {
     };
 
     // 🔹 1. Every day
-    if (frequency === "Every day" && day !== undefined) {
+    if (frequency == "Every day") {
       
     console.log("frequency === Every day");
       const start = new Date(today);
