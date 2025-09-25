@@ -71,8 +71,8 @@ const SupplementSchema = new mongoose.Schema({
   // 🔹 New explicit date field
   date: {
     type: Date,
-    required: true,
-    default: Date.now
+    required: false,
+    default:null
   },
 
   cycleDate: {
