@@ -309,33 +309,23 @@ export const createSupplement = async (req, res) => {
         current.setDate(current.getDate() + 1);
       }
 
-      const pattern = [];
-      for (let d = day; d < 7; d += 2) {
-        pattern.push(d);
-      }
-
       while (current <= end) {
-        for (let d of pattern) {
-          const nextDate = new Date(current);
-          nextDate.setDate(current.getDate() - current.getDay() + d);
+        supplements.push(
+          new Supplement({
+            name,
+            form,
+            reason,
+            day: current.getDay(),        // weekday (0–6)
+            time,
+            status: "pending",
+            user: req.user.id,
+            cycleDate: withTime(current, time), // full datetime
+            cycleId,
+          })
+        );
 
-          if (nextDate >= start && nextDate <= end) {
-            supplements.push(
-              new Supplement({
-                name,
-                form,
-                reason,
-                day: d,
-                time,
-                status: "pending",
-                user: req.user.id,
-                cycleDate: withTime(nextDate, time),
-                cycleId,
-              })
-            );
-          }
-        }
-        current.setDate(current.getDate() + 7);
+        // 🔑 har 2 din badh jao (1 din gap)
+        current.setDate(current.getDate() + 2);
       }
     }
 
@@ -391,29 +381,30 @@ export const createSupplement = async (req, res) => {
     }
 
     // 🔹 5. Every X days
-    else if (frequency === "Every X days" && day !== undefined) {
+    else if (frequency === "Every X days" && interval) {
       const start = new Date(today);
       const end = new Date(start);
       end.setMonth(end.getMonth() + 1);
 
       let current = new Date(start);
+
       while (current <= end) {
-        if (current.getDay() === day) {
-          supplements.push(
-            new Supplement({
-              name,
-              form,
-              reason,
-              day: current.getDay(),
-              time,
-              status: "pending",
-              user: req.user.id,
-              cycleDate: withTime(current, time),
-              cycleId,
-            })
-          );
-        }
-        current.setDate(current.getDate() + 1);
+        supplements.push(
+          new Supplement({
+            name,
+            form,
+            reason,
+            day: current.getDay(),
+            time,
+            status: "pending",
+            user: req.user.id,
+            cycleDate: withTime(current, time),
+            cycleId,
+          })
+        );
+
+        // ✅ add (interval + 1) days instead of interval
+        current = new Date(current.getTime() + (interval + 1) * 24 * 60 * 60 * 1000);
       }
     }
 
@@ -421,48 +412,55 @@ export const createSupplement = async (req, res) => {
     else if (frequency === "Every X weeks" && interval) {
       const start = new Date(today);
       const end = new Date(start);
-      end.setMonth(end.getMonth() + 3);
+      end.setMonth(end.getMonth() + 3); // 👉 3 months tak supplements banao
 
       let current = new Date(start);
+
       while (current <= end) {
         supplements.push(
           new Supplement({
             name,
             form,
             reason,
-            day: current.getDay(),
+            day: current.getDay(),            // weekday (0–6)
             time,
             status: "pending",
             user: req.user.id,
-            cycleDate: withTime(current, time),
+            cycleDate: withTime(current, time), // full datetime
             cycleId,
           })
         );
-        current.setDate(current.getDate() + interval * 7);
+
+        // ✅ move ahead by "interval" * 7 days
+        current = new Date(current.getTime() + interval * 7 * 24 * 60 * 60 * 1000);
       }
     }
+
 
     // 🔹 7. Every X months
     else if (frequency === "Every X months" && interval) {
       const start = new Date(today);
       const end = new Date(start);
-      end.setFullYear(end.getFullYear() + 1);
+      end.setFullYear(end.getFullYear() + 1); // 👉 1 saal tak supplements create karo
 
       let current = new Date(start);
+
       while (current <= end) {
         supplements.push(
           new Supplement({
             name,
             form,
             reason,
-            day: current.getDay(),
+            day: current.getDay(),             // weekday (0–6)
             time,
             status: "pending",
             user: req.user.id,
-            cycleDate: withTime(current, time),
+            cycleDate: withTime(current, time), // full datetime
             cycleId,
           })
         );
+
+        // ✅ move ahead by "interval" months
         current.setMonth(current.getMonth() + interval);
       }
     }
