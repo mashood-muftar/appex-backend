@@ -6,7 +6,8 @@ import Friend from '../models/Friend.js';
 import { sendOTPEmail } from '../utils/emailService.js';
 import cloudinary from '../config/cloudinary.js';
 import { Readable } from 'stream';
-import { scheduletNotification } from "./supplementController.js";
+import { scheduletappointmentNotification } from './supplementController.js';
+
 
 // Create
 export const addAppointment = async (req, res) => {
@@ -56,9 +57,9 @@ export const addAppointment = async (req, res) => {
     if (req.user.deviceToken) {
       console.log(">>> Appointment created:", title, appointmentDateTimeUTC);
 
-      scheduletNotification(
+      scheduletappointmentNotification(
         req.user.deviceToken,
-        `📅 Appointment Reminder: ${title}`,
+        `${title}`,
         appointmentDateTimeUTC, // pure UTC Date object
         time
       );
@@ -78,6 +79,8 @@ export const addAppointment = async (req, res) => {
     });
   }
 };
+
+
 // export const addAppointment = async (req, res) => {
 //   try {
 //     const { title, description, date, time, location } = req.body;

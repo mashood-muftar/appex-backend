@@ -1,0 +1,60 @@
+{"level":"info","message":"All supplement notifications scheduled successfully","service":"apex-biotics-api","timestamp":"2025-09-26 18:39:38"}
+{"level":"info","message":"Server is running on http://localhost:5000","service":"apex-biotics-api","timestamp":"2025-09-26 18:39:38"}
+{"level":"info","message":"All supplement notifications scheduled successfully","service":"apex-biotics-api","timestamp":"2025-09-26 18:39:54"}
+{"level":"info","message":"Server is running on http://localhost:5000","service":"apex-biotics-api","timestamp":"2025-09-26 18:39:54"}
+{"level":"info","message":"All supplement notifications scheduled successfully","service":"apex-biotics-api","timestamp":"2025-09-26 18:40:23"}
+{"level":"info","message":"Server is running on http://localhost:5000","service":"apex-biotics-api","timestamp":"2025-09-26 18:40:23"}
+{"level":"info","message":"All supplement notifications scheduled successfully","service":"apex-biotics-api","timestamp":"2025-09-26 18:41:03"}
+{"level":"info","message":"Server is running on http://localhost:5000","service":"apex-biotics-api","timestamp":"2025-09-26 18:41:03"}
+{"level":"info","message":"All supplement notifications scheduled successfully","service":"apex-biotics-api","timestamp":"2025-09-26 18:41:19"}
+{"level":"info","message":"Server is running on http://localhost:5000","service":"apex-biotics-api","timestamp":"2025-09-26 18:41:19"}
+{"level":"info","message":"All supplement notifications scheduled successfully","service":"apex-biotics-api","timestamp":"2025-09-26 18:41:45"}
+{"level":"info","message":"Server is running on http://localhost:5000","service":"apex-biotics-api","timestamp":"2025-09-26 18:41:45"}
+{"level":"http","message":{"duration":"292ms","ip":"::1","method":"POST","requestBody":"{\"email\":\"mashoodhussain100@gmail.com\",\"password\":\"mashood123\"}","requestId":null,"status":200,"url":"/api/auth/login","userAgent":"PostmanRuntime/7.48.0","userId":null},"service":"apex-biotics-api","timestamp":"2025-09-26 18:42:02"}
+{"level":"http","message":"::1 - - [26/Sep/2025:13:42:02 +0000] \"POST /api/auth/login HTTP/1.1\" 200 651 \"-\" \"PostmanRuntime/7.48.0\"","service":"apex-biotics-api","timestamp":"2025-09-26 18:42:02"}
+{"level":"http","message":{"duration":"436ms","ip":"::1","method":"POST","requestBody":"{\"title\":\"Doctor Visit important\",\"description\":\"Annual health checkup with Dr. Khan\",\"date\":\"2025-09-26\",\"time\":\"18:45\",\"location\":\"City Hospital\"}","requestId":null,"status":201,"url":"/api/auth/add/appointment","userAgent":"PostmanRuntime/7.48.0","userId":"68643ec66f91fafad2288530"},"service":"apex-biotics-api","timestamp":"2025-09-26 18:42:35"}
+{"level":"http","message":"::1 - - [26/Sep/2025:13:42:35 +0000] \"POST /api/auth/add/appointment HTTP/1.1\" 201 423 \"-\" \"PostmanRuntime/7.48.0\"","service":"apex-biotics-api","timestamp":"2025-09-26 18:42:35"}
+{"level":"info","message":"All supplement notifications scheduled successfully","service":"apex-biotics-api","timestamp":"2025-09-26 18:42:58"}
+{"level":"info","message":"Server is running on http://localhost:5000","service":"apex-biotics-api","timestamp":"2025-09-26 18:42:58"}
+{"level":"http","message":{"duration":"479ms","ip":"::1","method":"POST","requestBody":"{\"title\":\"Doctor Visit important 2\",\"description\":\"Annual health checkup with Dr. Khan\",\"date\":\"2025-09-26\",\"time\":\"18:47\",\"location\":\"City Hospital\"}","requestId":null,"status":201,"url":"/api/auth/add/appointment","userAgent":"PostmanRuntime/7.48.0","userId":"68643ec66f91fafad2288530"},"service":"apex-biotics-api","timestamp":"2025-09-26 18:43:59"}
+{"level":"http","message":"::1 - - [26/Sep/2025:13:43:59 +0000] \"POST /api/auth/add/appointment HTTP/1.1\" 201 425 \"-\" \"PostmanRuntime/7.48.0\"","service":"apex-biotics-api","timestamp":"2025-09-26 18:43:59"}
+{"level":"info","message":"All supplement notifications scheduled successfully","service":"apex-biotics-api","timestamp":"2025-09-26 18:47:21"}
+{"level":"info","message":"Server is running on http://localhost:5000","service":"apex-biotics-api","timestamp":"2025-09-26 18:47:21"}
+{"level":"info","message":"All supplement notifications scheduled successfully","service":"apex-biotics-api","timestamp":"2025-09-26 18:49:34"}
+{"level":"info","message":"Server is running on http://localhost:5000","service":"apex-biotics-api","timestamp":"2025-09-26 18:49:34"}
+{"level":"http","message":{"duration":"471ms","ip":"::1","method":"POST","requestBody":"{\"title\":\"Doctor Visit important 2\",\"description\":\"Annual health checkup with Dr. Khan\",\"date\":\"2025-09-26\",\"time\":\"18:52\",\"location\":\"City Hospital\"}","requestId":null,"status":201,"url":"/api/auth/add/appointment","userAgent":"PostmanRuntime/7.48.0","userId":"68643ec66f91fafad2288530"},"service":"apex-biotics-api","timestamp":"2025-09-26 18:50:57"}
+{"level":"http","message":"::1 - - [26/Sep/2025:13:50:57 +0000] \"POST /api/auth/add/appointment HTTP/1.1\" 201 425 \"-\" \"PostmanRuntime/7.48.0\"","service":"apex-biotics-api","timestamp":"2025-09-26 18:50:57"}
+{"level":"http","message":{"duration":"435ms","ip":"::1","method":"POST","requestBody":"{\"title\":\"Doctor Visit important 2\",\"description\":\"Annual health checkup with Dr. Khan\",\"date\":\"2025-09-26\",\"time\":\"18:53\",\"location\":\"City Hospital\"}","requestId":null,"status":201,"url":"/api/auth/add/appointment","userAgent":"PostmanRuntime/7.48.0","userId":"68643ec66f91fafad2288530"},"service":"apex-biotics-api","timestamp":"2025-09-26 18:51:27"}
+{"level":"http","message":"::1 - - [26/Sep/2025:13:51:27 +0000] \"POST /api/auth/add/appointment HTTP/1.1\" 201 425 \"-\" \"PostmanRuntime/7.48.0\"","service":"apex-biotics-api","timestamp":"2025-09-26 18:51:27"}
+{"level":"info","message":"All supplement notifications scheduled successfully","service":"apex-biotics-api","timestamp":"2025-09-26 18:54:09"}
+{"level":"info","message":"Server is running on http://localhost:5000","service":"apex-biotics-api","timestamp":"2025-09-26 18:54:09"}
+{"level":"info","message":"All supplement notifications scheduled successfully","service":"apex-biotics-api","timestamp":"2025-09-26 18:57:09"}
+{"level":"info","message":"Server is running on http://localhost:5000","service":"apex-biotics-api","timestamp":"2025-09-26 18:57:09"}
+{"level":"info","message":"All supplement notifications scheduled successfully","service":"apex-biotics-api","timestamp":"2025-09-26 18:57:34"}
+{"level":"info","message":"Server is running on http://localhost:5000","service":"apex-biotics-api","timestamp":"2025-09-26 18:57:34"}
+{"level":"info","message":"All supplement notifications scheduled successfully","service":"apex-biotics-api","timestamp":"2025-09-26 18:59:32"}
+{"level":"info","message":"Server is running on http://localhost:5000","service":"apex-biotics-api","timestamp":"2025-09-26 18:59:32"}
+{"level":"info","message":"All supplement notifications scheduled successfully","service":"apex-biotics-api","timestamp":"2025-09-26 18:59:54"}
+{"level":"info","message":"Server is running on http://localhost:5000","service":"apex-biotics-api","timestamp":"2025-09-26 18:59:54"}
+{"level":"info","message":"All supplement notifications scheduled successfully","service":"apex-biotics-api","timestamp":"2025-09-26 19:00:22"}
+{"level":"info","message":"Server is running on http://localhost:5000","service":"apex-biotics-api","timestamp":"2025-09-26 19:00:22"}
+{"level":"info","message":"All supplement notifications scheduled successfully","service":"apex-biotics-api","timestamp":"2025-09-26 19:00:38"}
+{"level":"info","message":"Server is running on http://localhost:5000","service":"apex-biotics-api","timestamp":"2025-09-26 19:00:38"}
+{"level":"info","message":"All supplement notifications scheduled successfully","service":"apex-biotics-api","timestamp":"2025-09-26 19:00:50"}
+{"level":"info","message":"Server is running on http://localhost:5000","service":"apex-biotics-api","timestamp":"2025-09-26 19:00:50"}
+{"level":"info","message":"All supplement notifications scheduled successfully","service":"apex-biotics-api","timestamp":"2025-09-26 19:01:00"}
+{"level":"info","message":"Server is running on http://localhost:5000","service":"apex-biotics-api","timestamp":"2025-09-26 19:01:00"}
+{"level":"http","message":{"duration":"485ms","ip":"::1","method":"POST","requestBody":"{\"title\":\"Doctor Visit important 2\",\"description\":\"Annual health checkup with Dr. Khan\",\"date\":\"2025-09-26\",\"time\":\"19:03\",\"location\":\"City Hospital\"}","requestId":null,"status":201,"url":"/api/auth/add/appointment","userAgent":"PostmanRuntime/7.48.0","userId":"68643ec66f91fafad2288530"},"service":"apex-biotics-api","timestamp":"2025-09-26 19:01:38"}
+{"level":"http","message":"::1 - - [26/Sep/2025:14:01:38 +0000] \"POST /api/auth/add/appointment HTTP/1.1\" 201 425 \"-\" \"PostmanRuntime/7.48.0\"","service":"apex-biotics-api","timestamp":"2025-09-26 19:01:38"}
+{"level":"info","message":"All supplement notifications scheduled successfully","service":"apex-biotics-api","timestamp":"2025-09-26 19:06:01"}
+{"level":"info","message":"Server is running on http://localhost:5000","service":"apex-biotics-api","timestamp":"2025-09-26 19:06:01"}
+{"level":"info","message":"All supplement notifications scheduled successfully","service":"apex-biotics-api","timestamp":"2025-09-26 19:09:41"}
+{"level":"info","message":"Server is running on http://localhost:5000","service":"apex-biotics-api","timestamp":"2025-09-26 19:09:42"}
+{"level":"info","message":"All supplement notifications scheduled successfully","service":"apex-biotics-api","timestamp":"2025-09-26 19:10:38"}
+{"level":"info","message":"Server is running on http://localhost:5000","service":"apex-biotics-api","timestamp":"2025-09-26 19:10:38"}
+{"level":"http","message":{"duration":"484ms","ip":"::1","method":"POST","requestBody":"{\"title\":\"Doctor Visit important 2\",\"description\":\"Annual health checkup with Dr. Khan\",\"date\":\"2025-09-26\",\"time\":\"19:17\",\"location\":\"City Hospital\"}","requestId":null,"status":201,"url":"/api/auth/add/appointment","userAgent":"PostmanRuntime/7.48.0","userId":"68643ec66f91fafad2288530"},"service":"apex-biotics-api","timestamp":"2025-09-26 19:15:17"}
+{"level":"http","message":"::1 - - [26/Sep/2025:14:15:17 +0000] \"POST /api/auth/add/appointment HTTP/1.1\" 201 425 \"-\" \"PostmanRuntime/7.48.0\"","service":"apex-biotics-api","timestamp":"2025-09-26 19:15:17"}
+{"level":"info","message":"All supplement notifications scheduled successfully","service":"apex-biotics-api","timestamp":"2025-09-26 19:17:25"}
+{"level":"info","message":"Server is running on http://localhost:5000","service":"apex-biotics-api","timestamp":"2025-09-26 19:17:25"}
+{"level":"http","message":{"duration":"477ms","ip":"::1","method":"POST","requestBody":"{\"title\":\"Doctor Visit important 2\",\"description\":\"Annual health checkup with Dr. Khan\",\"date\":\"2025-09-26\",\"time\":\"19:19\",\"location\":\"City Hospital\"}","requestId":null,"status":201,"url":"/api/auth/add/appointment","userAgent":"PostmanRuntime/7.48.0","userId":"68643ec66f91fafad2288530"},"service":"apex-biotics-api","timestamp":"2025-09-26 19:18:09"}
+{"level":"http","message":"::1 - - [26/Sep/2025:14:18:09 +0000] \"POST /api/auth/add/appointment HTTP/1.1\" 201 425 \"-\" \"PostmanRuntime/7.48.0\"","service":"apex-biotics-api","timestamp":"2025-09-26 19:18:09"}

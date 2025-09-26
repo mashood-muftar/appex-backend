@@ -35,7 +35,7 @@ export const sendTestNotification = async (deviceToken,name,time) => {
     // const { deviceToken } = req.body;
 
     if (!deviceToken) {
-      return res.status(400).json({ success: false, error: "Device token is required" });
+      throw new Error("Device token is required");    
     }
 
     const message = {
@@ -54,6 +54,56 @@ export const sendTestNotification = async (deviceToken,name,time) => {
   //   res.status(500).json({ success: false, error: error.message });
   // }
 };
+
+export const sendAppointmentNotification = async (deviceToken, name, time) => {
+  if (!deviceToken) {
+    throw new Error("Device token is required");
+  }
+  const message = {
+    notification: {
+      title: "EmberOn",
+      body: `You Have Your Appointment ${name} at ${time}`,
+    },
+    token: deviceToken,
+  };
+  await messaging.send(message);
+};
+
+export const scheduletappointmentNotification = async (deviceToken, name, date, time) => {
+  const now = new Date();
+
+  // Date already has time included
+  let target = new Date(date);
+
+  // Agar target already past hai → skip (ya DB mein mark karo "missed")
+  if (target <= now) {
+    console.log(`⚠️ Skipping past schedule for ${target.toLocaleString()}`);
+    return;
+  }
+
+  let diffMs = target.getTime() - now.getTime();
+
+  // (Optional) Agar 5h pehle bhejna hai
+   diffMs = diffMs - 300 * 60 * 1000;
+
+  if (diffMs > 2147483647) {
+    console.log("⚠️ Delay too long, skipping direct setTimeout. Use cron instead.");
+    return;
+  }
+
+  console.log(
+    `⏳ Scheduling notification for ${target.toLocaleString()} (in ${Math.round(diffMs / 1000 / 60)} minutes)`
+  );
+
+  setTimeout(async () => {
+    try {
+      sendAppointmentNotification(deviceToken, name, target.toLocaleTimeString());
+    } catch (err) {
+      console.error("❌ Failed to send push:", err);
+    }
+  }, diffMs);
+};
+
 
 
 
@@ -139,53 +189,8 @@ export const getTakenSupplements = async (req, res) => {
 
 
 
-// export const scheduletNotification = async (deviceToken, name, time) => {
-//   // try {
-//     // const { deviceToken, name, time } = req.body; 
-//     // time comes from DB as "HH:mm"
 
-//     // 1️⃣ Current time
-//     const now = new Date();
 
-//     // 2️⃣ Build today's target time
-//     const [hours, minutes] = time.split(":").map(Number);
-//     let target = new Date();
-//     target.setHours(hours, minutes, 0, 0); // set hh:mm:00
-
-//     // 3️⃣ If already passed, schedule for tomorrow
-//     if (target <= now) {
-//       target.setDate(target.getDate() + 1);
-//     }
-
-//     // 4️⃣ Difference in ms
-//     let diffMs = target.getTime() - now.getTime();
-//     diffMs = diffMs - 300 * 60 * 1000;
-
-//     // console.log(
-//     //   `⏳ Scheduling notification for ${target.toLocaleString()} (in ${Math.round(
-//     //     diffMs / 1000 / 60
-//     //   )} minutes)`
-//     // );
-
-//     // 5️⃣ Schedule notification
-//     setTimeout(async () => {
-//       try {
-        
-//     sendTestNotification(deviceToken,name,time);
-//       } catch (err) {
-//         console.error("❌ Failed to send push:", err);
-//       }
-//     }, diffMs);
-
-//     // res.json({
-//     //   success: true,
-//     //   message: `Notification scheduled for ${target.toLocaleTimeString()}`,
-//     // });
-//   // } catch (error) {
-//   //   console.error("❌ Schedule error:", error);
-//   //   res.status(500).json({ success: false, error: error.message });
-//   // }
-// };
 
 export const scheduletNotification = async (deviceToken, name, date, time) => {
   const now = new Date();
