@@ -6,23 +6,92 @@ import Friend from '../models/Friend.js';
 import { sendOTPEmail } from '../utils/emailService.js';
 import cloudinary from '../config/cloudinary.js';
 import { Readable } from 'stream';
-
+import { scheduletNotification } from "./supplementController.js";
 
 // Create
 export const addAppointment = async (req, res) => {
   try {
     const { title, description, date, time, location } = req.body;
+
     if (!title || !date || !time) {
-      return res.status(400).json({ success: false, message: "Title, date and time are required" });
+      return res.status(400).json({
+        success: false,
+        message: "Title, date and time are required",
+      });
     }
-    const appointment = new Appointment({ user: req.user._id, title, description, date, time, location });
-    // const appointment = new Appointment({ title, description, date, time, location });
-    await appointment.save();
-    res.status(201).json({ success: true, data: appointment });
+
+    // Validate time (HH:mm)
+    if (!/^([01]\d|2[0-3]):([0-5]\d)$/.test(time)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid time format. Use HH:MM (24-hour format)",
+        example: "17:30",
+      });
+    }
+
+    // 🕑 Helper: Merge date + time and return UTC Date
+    const mergeDateTimeUTC = (dateStr, timeStr) => {
+      const [hours, minutes] = timeStr.split(":").map(Number);
+      const [year, month, day] = dateStr.split("-").map(Number);
+
+      // local -> UTC conversion (Date.UTC always returns UTC)
+      return new Date(Date.UTC(year, month - 1, day, hours, minutes, 0, 0));
+    };
+
+    const appointmentDateTimeUTC = mergeDateTimeUTC(date, time);
+
+    // Save only date + time separately in Mongo
+    const appointment = new Appointment({
+      user: req.user._id,
+      title,
+      description,
+      date: new Date(date), // will store just date part
+      time,                 // store plain "HH:mm"
+      location,
+    });
+
+    const savedAppointment = await appointment.save();
+
+    // 🔔 Schedule notification using UTC datetime
+    if (req.user.deviceToken) {
+      console.log(">>> Appointment created:", title, appointmentDateTimeUTC);
+
+      scheduletNotification(
+        req.user.deviceToken,
+        `📅 Appointment Reminder: ${title}`,
+        appointmentDateTimeUTC, // pure UTC Date object
+        time
+      );
+    }
+
+    res.status(201).json({
+      success: true,
+      message: "Appointment created successfully",
+      data: savedAppointment,
+    });
   } catch (err) {
-    res.status(500).json({ success: false, message: "Server error", error: err.message });
+    console.error("❌ Error creating appointment:", err);
+    res.status(500).json({
+      success: false,
+      message: "Server error",
+      error: err.message,
+    });
   }
 };
+// export const addAppointment = async (req, res) => {
+//   try {
+//     const { title, description, date, time, location } = req.body;
+//     if (!title || !date || !time) {
+//       return res.status(400).json({ success: false, message: "Title, date and time are required" });
+//     }
+//     const appointment = new Appointment({ user: req.user._id, title, description, date, time, location });
+//     // const appointment = new Appointment({ title, description, date, time, location });
+//     await appointment.save();
+//     res.status(201).json({ success: true, data: appointment });
+//   } catch (err) {
+//     res.status(500).json({ success: false, message: "Server error", error: err.message });
+//   }
+// };
 
 // Update (Edit) Appointment
 export const updateAppointment = async (req, res) => {
