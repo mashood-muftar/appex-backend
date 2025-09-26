@@ -262,52 +262,45 @@ export const createSupplement = async (req, res) => {
     // return;
 
     // 🔹 1. Every day
-    if (frequency == "Every day") {
-      
-    console.log("frequency === Every day");
+    if (frequency === "Every day") {
+      console.log("frequency === Every day");
+
       const start = new Date(today);
       const end = new Date(start);
-      end.setMonth(end.getMonth() + 1);
+      end.setMonth(end.getMonth() + 1); // generate 1 month of supplements
 
       let current = new Date(start);
-      while (current.getDay() !== day) {
-        current.setDate(current.getDate() + 1);
-      }
-
-      
 
       while (current <= end) {
-        
-    console.log("frequency === Every day",current.getDate());
-        
+        console.log("Creating supplement for:", current.toDateString());
+
         supplements.push(
           new Supplement({
             name,
             form,
             reason,
-            day: current.getDay(),
+            day: current.getDay(),              // auto-detect weekday (0=Sunday ... 6=Saturday)
             time,
-            date: withTime(current, time),   // ✅ full date
+            date: withTime(current, time),      // full datetime
             status: "pending",
             user: req.user.id,
             cycleDate: withTime(current, time),
             cycleId,
           })
         );
-        current.setDate(current.getDate() + 1);
+
+        current.setDate(current.getDate() + 1); // move to next day
       }
     }
 
+
     // 🔹 2. Every other day
-    else if (frequency === "Every other day" && day !== undefined) {
+    else if (frequency === "Every other day") {
       const start = new Date(today);
       const end = new Date(start);
-      end.setMonth(end.getMonth() + 1);
+      end.setMonth(end.getMonth() + 1); // generate 1 month ahead
 
       let current = new Date(start);
-      while (current.getDay() !== day) {
-        current.setDate(current.getDate() + 1);
-      }
 
       while (current <= end) {
         supplements.push(
@@ -315,7 +308,7 @@ export const createSupplement = async (req, res) => {
             name,
             form,
             reason,
-            day: current.getDay(),        // weekday (0–6)
+            day: current.getDay(),              // auto-detect weekday
             time,
             status: "pending",
             user: req.user.id,
@@ -324,7 +317,7 @@ export const createSupplement = async (req, res) => {
           })
         );
 
-        // 🔑 har 2 din badh jao (1 din gap)
+        // 🔑 move 2 days ahead each time
         current.setDate(current.getDate() + 2);
       }
     }
