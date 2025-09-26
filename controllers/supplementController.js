@@ -549,30 +549,39 @@ export const deleteallortodaysupplement = async (req, res) => {
 
 export const updateSupplementPills = async (req, res) => {
   try {
-    const { id } = req.params; // supplement _id
+    const { id } = req.params;   // cycleid accept
     const { pills } = req.body;
 
     if (!pills || pills < 1) {
-      return res.status(400).json({ success: false, message: 'Pills must be at least 1' });
+      return res.status(400).json({
+        success: false,
+        message: "Pills must be at least 1"
+      });
     }
 
-    const supplement = await Supplement.findOneAndUpdate(
-      { _id: id, user: req.user.id },
-      { pills },
-      { new: true }
+    const result = await Supplement.updateMany(
+      { cycleId: id, user: req.user.id },   // 🔑 cycleId string + user
+      { $set: { pills } }
     );
 
-    if (!supplement) {
-      return res.status(404).json({ success: false, message: 'Supplement not found' });
+    if (result.modifiedCount === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "No supplements found for this cycleId"
+      });
     }
 
     res.json({
       success: true,
-      message: 'Pills updated successfully',
-      supplement
+      message: `Pills updated successfully for ${result.modifiedCount} supplements`,
+      cycleId: id
     });
   } catch (error) {
-    res.status(500).json({ success: false, message: 'Server error', error: error.message });
+    res.status(500).json({
+      success: false,
+      message: "Server error",
+      error: error.message
+    });
   }
 };
 
@@ -865,7 +874,7 @@ export const updateSupplementStatus = async (req, res) => {
       });
     }
 
-    // 🔹 Update only the specific supplement
+    // 🔹 Step 1: Update only the specific supplement's status
     const supplement = await Supplement.findOneAndUpdate(
       { _id: supplementId, user: userId },
       { $set: { status: status, lastStatusUpdate: new Date() } },
@@ -879,7 +888,18 @@ export const updateSupplementStatus = async (req, res) => {
       });
     }
 
-    // 🔹 Work with SupplementStatus (daily log)
+    // 🔹 Step 2: If status is 'taken', decrement pills for whole cycle
+    if (status === "taken") {
+      const cycleId = supplement.cycleId;
+
+      // pills ko -1 karna hai but negative na jaye
+      await Supplement.updateMany(
+        { cycleId, user: userId, pills: { $gt: 0 } },
+        { $inc: { pills: -1 } }
+      );
+    }
+
+    // 🔹 Step 3: Work with SupplementStatus (daily log)
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
