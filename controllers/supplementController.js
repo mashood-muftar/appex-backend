@@ -92,8 +92,8 @@ export const scheduletappointmentNotification = async (deviceToken, name, date, 
   }
 
   //console.log(
-    `⏳ Scheduling notification for ${target.toLocaleString()} (in ${Math.round(diffMs / 1000 / 60)} minutes)`
-  );
+  //   `⏳ Scheduling notification for ${target.toLocaleString()} (in ${Math.round(diffMs / 1000 / 60)} minutes)`
+  // );
 
   setTimeout(async () => {
     try {
