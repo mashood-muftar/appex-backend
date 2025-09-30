@@ -9,6 +9,15 @@ import { Readable } from 'stream';
 import { scheduletappointmentNotification } from './supplementController.js';
 
 
+function normalizeTimeTo24H(time) {
+  // If format is like "05:09 PM"
+  if (/^(0?[1-9]|1[0-2]):([0-5]\d)\s?(AM|PM)$/i.test(time)) {
+    return new Date(`1970-01-01 ${time}`).toTimeString().slice(0, 5); 
+    // -> "17:09"
+  }
+  return time; // Already in HH:mm
+}
+
 // Create
 export const addAppointment = async (req, res) => {
   try {
@@ -21,21 +30,17 @@ export const addAppointment = async (req, res) => {
       });
     }
 
-    // Validate time (HH:mm)
-    if (!/^([01]\d|2[0-3]):([0-5]\d)$/.test(time)) {
-      console.log({
-        success: false,
-        message: "Invalid time format. Use HH:MM (24-hour format)",
-        example: "17:30",
-        data:time
-      });
-      return res.status(400).json({
-        success: false,
-        message: "Invalid time format. Use HH:MM (24-hour format)",
-        example: "17:30",
-        data:time
-      });
-    }
+    time = normalizeTimeTo24H(time);
+
+// Now validate only 24-hour format
+if (!/^([01]\d|2[0-3]):([0-5]\d)$/.test(time)) {
+  return res.status(400).json({
+    success: false,
+    message: "Invalid time format. Use HH:mm (24-hour)",
+    example: "17:30",
+    data: time,
+  });
+}
 
     // 🕑 Helper: Merge date + time and return UTC Date
     const mergeDateTimeUTC = (dateStr, timeStr) => {
