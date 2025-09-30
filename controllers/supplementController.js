@@ -734,7 +734,7 @@ export const updateSupplement = async (req, res) => {
 // };
 
 
-export const getTodaysSupplements = async (req, res) => {
+export const getTodaySupplements = async (req, res) => {
   try {
     const today = new Date();
     const currentDate = new Date(today.getFullYear(), today.getMonth(), today.getDate());
