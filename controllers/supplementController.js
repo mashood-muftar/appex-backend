@@ -683,7 +683,7 @@ export const getTodaysSupplements = async (req, res) => {
     const currentDate = new Date(today.getFullYear(), today.getMonth(), today.getDate());
 
     
-    console.log('getTodaysSupplements',today);
+    // console.log('getTodaysSupplements',today);
     
     // Build query to find supplements for today
     const query = {
@@ -741,7 +741,7 @@ export const getTodaySupplements = async (req, res) => {
     const currentDate = new Date(today.getFullYear(), today.getMonth(), today.getDate());
 
     
-    console.log('getTodaysSupplements',today);
+    console.log('getTodaySupplements',today);
     
     // Build query to find supplements for today
     const query = {
