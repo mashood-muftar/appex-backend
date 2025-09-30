@@ -741,34 +741,12 @@ export const getTodaySupplements = async (req, res) => {
     const currentDate = new Date(today.getFullYear(), today.getMonth(), today.getDate());
 
     
-    console.log('getTodaySupplements',today);
+    console.log('getTodaySupplements',currentDay,req.user.id);
     
     // Build query to find supplements for today
     const query = {
       user: req.user.id,
-      day: currentDay,
-      $or: [
-        // Case 1: No schedule dates set (always active)
-        {
-          'schedule.startDate': null,
-          'schedule.endDate': null
-        },
-        // Case 2: Only start date set, and today is after or equal to start date
-        {
-          'schedule.startDate': { $lte: currentDate },
-          'schedule.endDate': null
-        },
-        // Case 3: Only end date set, and today is before or equal to end date
-        {
-          'schedule.startDate': null,
-          'schedule.endDate': { $gte: currentDate }
-        },
-        // Case 4: Both dates set, and today is within the range
-        {
-          'schedule.startDate': { $lte: currentDate },
-          'schedule.endDate': { $gte: currentDate }
-        }
-      ]
+      day: currentDay
     };
     
     // Get supplements and sort by time
@@ -778,7 +756,7 @@ export const getTodaySupplements = async (req, res) => {
       success: true,
       count: supplements.length,
       date: currentDate.toISOString().split('T')[0], // YYYY-MM-DD
-      data: supplements[0]
+      data: supplements
     });
 
   } catch (error) {
