@@ -737,14 +737,16 @@ export const getTodaysSupplements = async (req, res) => {
 export const getTodaySupplements = async (req, res) => {
   try {
     const today = new Date();
+    const currentDay = today.getDay(); // 0-6 representing Sunday-Saturday
     const currentDate = new Date(today.getFullYear(), today.getMonth(), today.getDate());
 
-    console.log('getTodaysSupplements', currentDate);
-
+    
+    console.log('getTodaysSupplements',today);
+    
     // Build query to find supplements for today
     const query = {
       user: req.user.id,
-      date: currentDate, // 🔹 Match exact date instead of day
+      day: currentDay,
       $or: [
         // Case 1: No schedule dates set (always active)
         {
@@ -768,7 +770,7 @@ export const getTodaySupplements = async (req, res) => {
         }
       ]
     };
-
+    
     // Get supplements and sort by time
     const supplements = await Supplement.find(query).sort({ time: 1 });
 
