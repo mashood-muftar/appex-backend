@@ -21,7 +21,7 @@ function normalizeTimeTo24H(time) {
 // Create
 export const addAppointment = async (req, res) => {
   try {
-    const { title, description, date, time, location } = req.body;
+    let { title, description, date, time, location } = req.body;
 
     if (!title || !date || !time) {
       return res.status(400).json({
