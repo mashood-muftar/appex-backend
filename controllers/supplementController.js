@@ -16,7 +16,7 @@ import { v4 as uuidv4 } from "uuid";
 
 // === Firebase Admin Setup (inline here) ===
 const keyPath = path.resolve("./apex-biotics-50aaad5e911e.json"); // adjust if needed
-console.log("🔑 Loading Firebase service account:", keyPath);
+//console.log("🔑 Loading Firebase service account:", keyPath);
 
 const serviceAccount = JSON.parse(fs.readFileSync(keyPath, "utf8"));
 
@@ -24,7 +24,7 @@ if (!admin.apps.length) {
   admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
   });
-  console.log("✅ Firebase Admin initialized");
+  //console.log("✅ Firebase Admin initialized");
 }
 
 const messaging = admin.messaging();
@@ -50,7 +50,7 @@ export const sendTestNotification = async (deviceToken,name,time) => {
 
     // res.json({ success: true, response });
   // } catch (error) {
-  //   console.error("❌ Push send error:", error);
+  //   //console.error("❌ Push send error:", error);
   //   res.status(500).json({ success: false, error: error.message });
   // }
 };
@@ -77,7 +77,7 @@ export const scheduletappointmentNotification = async (deviceToken, name, date, 
 
   // Agar target already past hai → skip (ya DB mein mark karo "missed")
   if (target <= now) {
-    console.log(`⚠️ Skipping past schedule for ${target.toLocaleString()}`);
+    //console.log(`⚠️ Skipping past schedule for ${target.toLocaleString()}`);
     return;
   }
 
@@ -87,11 +87,11 @@ export const scheduletappointmentNotification = async (deviceToken, name, date, 
    diffMs = diffMs - 300 * 60 * 1000;
 
   if (diffMs > 2147483647) {
-    console.log("⚠️ Delay too long, skipping direct setTimeout. Use cron instead.");
+    //console.log("⚠️ Delay too long, skipping direct setTimeout. Use cron instead.");
     return;
   }
 
-  console.log(
+  //console.log(
     `⏳ Scheduling notification for ${target.toLocaleString()} (in ${Math.round(diffMs / 1000 / 60)} minutes)`
   );
 
@@ -99,7 +99,7 @@ export const scheduletappointmentNotification = async (deviceToken, name, date, 
     try {
       sendAppointmentNotification(deviceToken, name, target.toLocaleTimeString());
     } catch (err) {
-      console.error("❌ Failed to send push:", err);
+      //console.error("❌ Failed to send push:", err);
     }
   }, diffMs);
 };
@@ -115,7 +115,7 @@ export const getAllSupplements = async (req, res) => {
   try {
     // Get all supplements for the authenticated user
     const supplements = await Supplement.find({ user: req.user.id });
-    console.log('getAllSupplements',supplements);
+    //console.log('getAllSupplements',supplements);
     res.json({
       success: true,
       count: supplements.length,
@@ -137,7 +137,7 @@ export const getSupplementById = async (req, res) => {
       user: req.user.id
     });
 
-    console.log('getSupplementById');
+    //console.log('getSupplementById');
     
     if (!supplement) {
       return res.status(404).json({
@@ -200,7 +200,7 @@ export const scheduletNotification = async (deviceToken, name, date, time) => {
 
   // Agar target already past hai → skip (ya DB mein mark karo "missed")
   if (target <= now) {
-    console.log(`⚠️ Skipping past schedule for ${target.toLocaleString()}`);
+    //console.log(`⚠️ Skipping past schedule for ${target.toLocaleString()}`);
     return;
   }
 
@@ -210,11 +210,11 @@ export const scheduletNotification = async (deviceToken, name, date, time) => {
    diffMs = diffMs - 300 * 60 * 1000;
 
   if (diffMs > 2147483647) {
-    console.log("⚠️ Delay too long, skipping direct setTimeout. Use cron instead.");
+    //console.log("⚠️ Delay too long, skipping direct setTimeout. Use cron instead.");
     return;
   }
 
-  // console.log(
+  // //console.log(
   //   `⏳ Scheduling notification for ${target.toLocaleString()} (in ${Math.round(diffMs / 1000 / 60)} minutes)`
   // );
 
@@ -222,7 +222,7 @@ export const scheduletNotification = async (deviceToken, name, date, time) => {
     try {
       sendTestNotification(deviceToken, name, target.toLocaleTimeString());
     } catch (err) {
-      console.error("❌ Failed to send push:", err);
+      //console.error("❌ Failed to send push:", err);
     }
   }, diffMs);
 };
@@ -249,7 +249,7 @@ export const createSupplement = async (req, res) => {
       });
     }
 
-    console.log(">>>>>>>>>> Request Body: ", req.body);
+    //console.log(">>>>>>>>>> Request Body: ", req.body);
 
     let supplements = [];
     const today = new Date();
@@ -263,12 +263,12 @@ export const createSupplement = async (req, res) => {
       return d;
     };
 
-    // console.log(frequency);
+    // //console.log(frequency);
     // return;
 
     // 🔹 1. Every day
     if (frequency === "Every day") {
-      console.log("frequency === Every day");
+      //console.log("frequency === Every day");
 
       const start = new Date(today);
       const end = new Date(start);
@@ -277,7 +277,7 @@ export const createSupplement = async (req, res) => {
       let current = new Date(start);
 
       while (current <= end) {
-        console.log("Creating supplement for:", current.toDateString());
+        //console.log("Creating supplement for:", current.toDateString());
 
         supplements.push(
           new Supplement({
@@ -483,10 +483,10 @@ export const createSupplement = async (req, res) => {
 
     // ✅ Schedule notifications
     for (let supp of savedSupplements) {
-      console.log(">>> Supplement created:", supp.name, supp.cycleDate);
+      //console.log(">>> Supplement created:", supp.name, supp.cycleDate);
 
       if (!supp.cycleDate) {
-        console.error("❌ Missing cycleDate for supplement:", supp);
+        //console.error("❌ Missing cycleDate for supplement:", supp);
         continue;
       }
 
@@ -501,7 +501,7 @@ export const createSupplement = async (req, res) => {
         try {
           await scheduleStatusCheck(populatedSupplement);
         } catch (err) {
-          console.error("Error scheduling status check:", err);
+          //console.error("Error scheduling status check:", err);
         }
       }, 500);
     }
@@ -512,7 +512,7 @@ export const createSupplement = async (req, res) => {
       data: savedSupplements,
     });
   } catch (error) {
-    console.error("Error creating supplement:", error);
+    //console.error("Error creating supplement:", error);
     res.status(500).json({ success: false, message: "Server error", error: error.message });
   }
 };
@@ -683,7 +683,7 @@ export const getTodaysSupplements = async (req, res) => {
     const currentDate = new Date(today.getFullYear(), today.getMonth(), today.getDate());
 
     
-    console.log('getTodaysSupplements');
+    console.log('getTodaysSupplements',today);
     
     // Build query to find supplements for today
     const query = {
@@ -734,52 +734,52 @@ export const getTodaysSupplements = async (req, res) => {
 };
 
 
-export const getTodaySupplements = async (req, res) => {
+export const getTodaysSupplements = async (req, res) => {
   try {
-    
-    console.log('getTodaySupplements');
-    
-    // Make sure we have a valid user ID
-    if (!req.user || !req.user.id) {
-      return res.status(401).json({
-        success: false,
-        message: 'User authentication required'
-      });
-    }
-    
     const today = new Date();
-    const dayOfWeek = today.getDay(); // 0-6 for Sunday-Saturday
-    
-    // Find supplements for today based on day and schedule
-    const supplements = await Supplement.find({
+    const currentDate = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+
+    console.log('getTodaysSupplements', currentDate);
+
+    // Build query to find supplements for today
+    const query = {
       user: req.user.id,
-      day: dayOfWeek,
-      // Only include supplements within their date range (if specified)
-      $and: [
+      date: currentDate, // 🔹 Match exact date instead of day
+      $or: [
+        // Case 1: No schedule dates set (always active)
         {
-          $or: [
-            { 'schedule.startDate': { $exists: false } },
-            { 'schedule.startDate': null },
-            { 'schedule.startDate': { $lte: today } }
-          ]
+          'schedule.startDate': null,
+          'schedule.endDate': null
         },
+        // Case 2: Only start date set, and today is after or equal to start date
         {
-          $or: [
-            { 'schedule.endDate': { $exists: false } },
-            { 'schedule.endDate': null },
-            { 'schedule.endDate': { $gte: today } }
-          ]
+          'schedule.startDate': { $lte: currentDate },
+          'schedule.endDate': null
+        },
+        // Case 3: Only end date set, and today is before or equal to end date
+        {
+          'schedule.startDate': null,
+          'schedule.endDate': { $gte: currentDate }
+        },
+        // Case 4: Both dates set, and today is within the range
+        {
+          'schedule.startDate': { $lte: currentDate },
+          'schedule.endDate': { $gte: currentDate }
         }
       ]
-    }).select('-__v'); // Optionally exclude the version field
-    
+    };
+
+    // Get supplements and sort by time
+    const supplements = await Supplement.find(query).sort({ time: 1 });
+
     res.json({
       success: true,
       count: supplements.length,
+      date: currentDate.toISOString().split('T')[0], // YYYY-MM-DD
       data: supplements
     });
+
   } catch (error) {
-    console.error('Error in getTodaySupplements:', error);
     res.status(500).json({
       success: false,
       message: 'Server error',
@@ -787,6 +787,7 @@ export const getTodaySupplements = async (req, res) => {
     });
   }
 };
+
 
 export const deleteSupplement = async (req, res) => {
   try {
@@ -821,7 +822,7 @@ export const getSupplementsByDay = async (req, res) => {
     const { day } = req.params; // day should be 0-6 representing Sunday-Saturday
     const dayNum = parseInt(day);
     
-    console.log('getSupplementsByDay');
+    //console.log('getSupplementsByDay');
     if (isNaN(dayNum) || dayNum < 0 || dayNum > 6) {
       return res.status(400).json({
         success: false,
@@ -936,7 +937,7 @@ export const updateSupplementStatus = async (req, res) => {
       data: supplement,
     });
   } catch (error) {
-    console.error("Error in updateSupplementStatus:", error);
+    //console.error("Error in updateSupplementStatus:", error);
     res.status(500).json({
       success: false,
       message: "Server error",
@@ -1052,7 +1053,7 @@ export const getDailyAdherenceStats = async (req, res) => {
       },
     });
   } catch (error) {
-    console.error('Error in getDailyAdherenceStats:', error);
+    //console.error('Error in getDailyAdherenceStats:', error);
     res.status(500).json({
       success: false,
       message: 'Server error',
