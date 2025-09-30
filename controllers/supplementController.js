@@ -14,6 +14,9 @@ import admin from "firebase-admin";
 import fs from "fs";
 import { v4 as uuidv4 } from "uuid";
 
+
+import { DateTime } from "luxon"; // npm install luxon
+
 // === Firebase Admin Setup (inline here) ===
 const keyPath = path.resolve("./apex-biotics-50aaad5e911e.json"); // adjust if needed
 //console.log("🔑 Loading Firebase service account:", keyPath);
@@ -69,40 +72,78 @@ export const sendAppointmentNotification = async (deviceToken, name, time) => {
   await messaging.send(message);
 };
 
+// export const scheduletappointmentNotification = async (deviceToken, name, date, time) => {
+//   const now = new Date();
+
+//   // Date already has time included
+//   let target = new Date(date);
+
+//   // Agar target already past hai → skip (ya DB mein mark karo "missed")
+//   if (target <= now) {
+//     //console.log(`⚠️ Skipping past schedule for ${target.toLocaleString()}`);
+//     return;
+//   }
+
+//   let diffMs = target.getTime() - now.getTime();
+
+//   // (Optional) Agar 5h pehle bhejna hai
+//    diffMs = diffMs - 300 * 60 * 1000;
+
+//   if (diffMs > 2147483647) {
+//     //console.log("⚠️ Delay too long, skipping direct setTimeout. Use cron instead.");
+//     return;
+//   }
+
+//   //console.log(
+//   //   `⏳ Scheduling notification for ${target.toLocaleString()} (in ${Math.round(diffMs / 1000 / 60)} minutes)`
+//   // );
+
+//   setTimeout(async () => {
+//     try {
+//       sendAppointmentNotification(deviceToken, name, target.toLocaleTimeString());
+//     } catch (err) {
+//       //console.error("❌ Failed to send push:", err);
+//     }
+//   }, diffMs);
+// };
+
 export const scheduletappointmentNotification = async (deviceToken, name, date, time) => {
-  const now = new Date();
+  const now = DateTime.now().setZone("Europe/London"); // Current time in UK
+  const target = DateTime.fromISO(date, { zone: "Europe/London" }); // Convert input to UK timezone
 
-  // Date already has time included
-  let target = new Date(date);
-
-  // Agar target already past hai → skip (ya DB mein mark karo "missed")
+  // Skip if already past
   if (target <= now) {
-    //console.log(`⚠️ Skipping past schedule for ${target.toLocaleString()}`);
+    console.log(`⚠️ Skipping past schedule for ${target.toISO()}`);
     return;
   }
 
-  let diffMs = target.getTime() - now.getTime();
+  let diffMs = target.toMillis() - now.toMillis();
 
-  // (Optional) Agar 5h pehle bhejna hai
-   diffMs = diffMs - 300 * 60 * 1000;
+  // (Optional) Send 5h earlier
+  diffMs -= 300 * 60 * 1000;
 
   if (diffMs > 2147483647) {
-    //console.log("⚠️ Delay too long, skipping direct setTimeout. Use cron instead.");
+    console.log("⚠️ Delay too long, skipping direct setTimeout. Use cron instead.");
     return;
   }
 
-  //console.log(
-  //   `⏳ Scheduling notification for ${target.toLocaleString()} (in ${Math.round(diffMs / 1000 / 60)} minutes)`
-  // );
+  console.log(
+    `⏳ Scheduling notification for ${target.toFormat("dd LLL yyyy HH:mm")} UK time (in ${Math.round(diffMs / 1000 / 60)} minutes)`
+  );
 
   setTimeout(async () => {
     try {
-      sendAppointmentNotification(deviceToken, name, target.toLocaleTimeString());
+      sendAppointmentNotification(
+        deviceToken,
+        name,
+        target.toFormat("HH:mm") // formatted UK time
+      );
     } catch (err) {
-      //console.error("❌ Failed to send push:", err);
+      console.error("❌ Failed to send push:", err);
     }
   }, diffMs);
 };
+
 
 
 
