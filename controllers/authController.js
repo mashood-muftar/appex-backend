@@ -23,10 +23,17 @@ export const addAppointment = async (req, res) => {
 
     // Validate time (HH:mm)
     if (!/^([01]\d|2[0-3]):([0-5]\d)$/.test(time)) {
+      console.log({
+        success: false,
+        message: "Invalid time format. Use HH:MM (24-hour format)",
+        example: "17:30",
+        data:time
+      });
       return res.status(400).json({
         success: false,
         message: "Invalid time format. Use HH:MM (24-hour format)",
         example: "17:30",
+        data:time
       });
     }
 
