@@ -6,24 +6,9 @@
     "auditLog": "C:\\Users\\LENOVO\\Music\\appex-backend\\logs\\.9ac7bbb5189378e82b8bf7bea99cde52b71e892e-audit.json",
     "files": [
         {
-            "date": 1758525662003,
-            "name": "C:\\Users\\LENOVO\\Music\\appex-backend\\logs\\api-2025-09-22.log",
-            "hash": "3312bbd574777e44eb88cf67404d07a940644c6312a4c8a2e3642b92d0f77c96"
-        },
-        {
-            "date": 1758694937528,
-            "name": "C:\\Users\\LENOVO\\Music\\appex-backend\\logs\\api-2025-09-24.log",
-            "hash": "5fc8e00519ab7ddc2484b5e0d31d3237c25f0f3739adf59851c8570b0ca50b1e"
-        },
-        {
-            "date": 1758785743695,
-            "name": "C:\\Users\\LENOVO\\Music\\appex-backend\\logs\\api-2025-09-25.log",
-            "hash": "5b026696657ac6d06f05d1937a36aed6509012844ae239aa49e64b4afa8c26f7"
-        },
-        {
-            "date": 1758866972609,
-            "name": "C:\\Users\\LENOVO\\Music\\appex-backend\\logs\\api-2025-09-26.log",
-            "hash": "4da8752fe8af42f5657b0549e610dd8521d7c523204e296ff8ab3e55c81afec1"
+            "date": 1760359535970,
+            "name": "C:\\Users\\LENOVO\\Music\\appex-backend\\logs\\api-2025-10-13.log",
+            "hash": "a4b91d10546f6353529bf86bf1de9e36c9d48f32f3c3288f9d4137ab4fb60e4e"
         }
     ],
     "hashType": "sha256"

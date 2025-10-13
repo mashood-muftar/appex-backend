@@ -268,6 +268,296 @@ export const scheduletNotification = async (deviceToken, name, date, time) => {
   }, diffMs);
 };
 
+// export const createSupplement = async (req, res) => {
+//   try {
+//     const { name, form, reason, day, time, frequency, daysOfWeek, cycle, interval } = req.body;
+
+//     // ✅ Validate required fields
+//     if (!name || !form || !time) {
+//       return res.status(400).json({
+//         success: false,
+//         message: "Missing required fields",
+//         required: ["name", "form", "time"],
+//       });
+//     }
+
+//     // ✅ Validate time format (HH:MM in 24h)
+//     if (!/^([01]\d|2[0-3]):([0-5]\d)$/.test(time)) {
+//       return res.status(400).json({
+//         success: false,
+//         message: "Invalid time format. Please use HH:MM in 24-hour format",
+//         example: "08:30",
+//       });
+//     }
+
+//     //console.log(">>>>>>>>>> Request Body: ", req.body);
+
+//     let supplements = [];
+//     const today = new Date();
+//     const cycleId = uuidv4(); // 🔑 unique id for this cycle
+
+//     // Helper: merge date + time
+//     const withTime = (date, timeStr) => {
+//       const [hours, minutes] = timeStr.split(":").map(Number);
+//       const d = new Date(date);
+//       d.setHours(hours, minutes, 0, 0);
+//       return d;
+//     };
+
+//     // //console.log(frequency);
+//     // return;
+
+//     // 🔹 1. Every day
+//     if (frequency === "Every day") {
+//       //console.log("frequency === Every day");
+
+//       const start = new Date(today);
+//       const end = new Date(start);
+//       end.setMonth(end.getMonth() + 1); // generate 1 month of supplements
+
+//       let current = new Date(start);
+
+//       while (current <= end) {
+//         //console.log("Creating supplement for:", current.toDateString());
+
+//         supplements.push(
+//           new Supplement({
+//             name,
+//             form,
+//             reason,
+//             day: current.getDay(),              // auto-detect weekday (0=Sunday ... 6=Saturday)
+//             time,
+//             date: withTime(current, time),      // full datetime
+//             status: "pending",
+//             user: req.user.id,
+//             cycleDate: withTime(current, time),
+//             cycleId,
+//           })
+//         );
+
+//         current.setDate(current.getDate() + 1); // move to next day
+//       }
+//     }
+
+
+//     // 🔹 2. Every other day
+//     else if (frequency === "Every other day") {
+//       const start = new Date(today);
+//       const end = new Date(start);
+//       end.setMonth(end.getMonth() + 1); // generate 1 month ahead
+
+//       let current = new Date(start);
+
+//       while (current <= end) {
+//         supplements.push(
+//           new Supplement({
+//             name,
+//             form,
+//             reason,
+//             day: current.getDay(),              // auto-detect weekday
+//             time,
+//             status: "pending",
+//             user: req.user.id,
+//             cycleDate: withTime(current, time), // full datetime
+//             cycleId,
+//           })
+//         );
+
+//         // 🔑 move 2 days ahead each time
+//         current.setDate(current.getDate() + 2);
+//       }
+//     }
+
+//     // 🔹 3. Specific days of the week
+//     else if (frequency === "Specific days of the week" && Array.isArray(daysOfWeek)) {
+//       const start = new Date(today);
+//       const end = new Date(start);
+//       end.setMonth(end.getMonth() + 1);
+
+//       let current = new Date(start);
+//       while (current <= end) {
+//         if (daysOfWeek.includes(current.getDay())) {
+//           supplements.push(
+//             new Supplement({
+//               name,
+//               form,
+//               reason,
+//               day: current.getDay(),
+//               time,
+//               status: "pending",
+//               user: req.user.id,
+//               cycleDate: withTime(current, time),
+//               cycleId,
+//             })
+//           );
+//         }
+//         current.setDate(current.getDate() + 1);
+//       }
+//     }
+
+//     // 🔹 4. On a recurring cycle
+//     else if (frequency === "On a recurring cycle" && cycle?.startDate && cycle?.repeat) {
+//       const start = new Date(cycle.startDate);
+//       const end = cycle.endDate ? new Date(cycle.endDate) : new Date(start.getTime() + 30 * 24 * 60 * 60 * 1000);
+
+//       let current = new Date(start);
+//       while (current <= end) {
+//         supplements.push(
+//           new Supplement({
+//             name,
+//             form,
+//             reason,
+//             day: current.getDay(),
+//             time,
+//             status: "pending",
+//             user: req.user.id,
+//             cycleDate: withTime(current, time),
+//             cycleId,
+//           })
+//         );
+//         current.setDate(current.getDate() + cycle.repeat);
+//       }
+//     }
+
+//     // 🔹 5. Every X days
+//     else if (frequency === "Every X days" && interval) {
+//       const start = new Date(today);
+//       const end = new Date(start);
+//       end.setMonth(end.getMonth() + 1);
+
+//       let current = new Date(start);
+
+//       while (current <= end) {
+//         supplements.push(
+//           new Supplement({
+//             name,
+//             form,
+//             reason,
+//             day: current.getDay(),
+//             time,
+//             status: "pending",
+//             user: req.user.id,
+//             cycleDate: withTime(current, time),
+//             cycleId,
+//           })
+//         );
+
+//         // ✅ add (interval + 1) days instead of interval
+//         current = new Date(current.getTime() + (interval + 1) * 24 * 60 * 60 * 1000);
+//       }
+//     }
+
+//     // 🔹 6. Every X weeks
+//     else if (frequency === "Every X weeks" && interval) {
+//       const start = new Date(today);
+//       const end = new Date(start);
+//       end.setMonth(end.getMonth() + 3); // 👉 3 months tak supplements banao
+
+//       let current = new Date(start);
+
+//       while (current <= end) {
+//         supplements.push(
+//           new Supplement({
+//             name,
+//             form,
+//             reason,
+//             day: current.getDay(),            // weekday (0–6)
+//             time,
+//             status: "pending",
+//             user: req.user.id,
+//             cycleDate: withTime(current, time), // full datetime
+//             cycleId,
+//           })
+//         );
+
+//         // ✅ move ahead by "interval" * 7 days
+//         current = new Date(current.getTime() + interval * 7 * 24 * 60 * 60 * 1000);
+//       }
+//     }
+
+
+//     // 🔹 7. Every X months
+//     else if (frequency === "Every X months" && interval) {
+//       const start = new Date(today);
+//       const end = new Date(start);
+//       end.setFullYear(end.getFullYear() + 1); // 👉 1 saal tak supplements create karo
+
+//       let current = new Date(start);
+
+//       while (current <= end) {
+//         supplements.push(
+//           new Supplement({
+//             name,
+//             form,
+//             reason,
+//             day: current.getDay(),             // weekday (0–6)
+//             time,
+//             status: "pending",
+//             user: req.user.id,
+//             cycleDate: withTime(current, time), // full datetime
+//             cycleId,
+//           })
+//         );
+
+//         // ✅ move ahead by "interval" months
+//         current.setMonth(current.getMonth() + interval);
+//       }
+//     }
+
+//     // 🔹 8. Only as needed
+//     else if (frequency === "Only as needed") {
+//       supplements.push(
+//         new Supplement({
+//           name,
+//           form,
+//           reason,
+//           time,
+//           status: "pending",
+//           user: req.user.id,
+//           cycleId,
+//         })
+//       );
+//     }
+
+//     // ✅ Save all supplements
+//     const savedSupplements = await Supplement.insertMany(supplements);
+
+//     // ✅ Schedule notifications
+//     for (let supp of savedSupplements) {
+//       //console.log(">>> Supplement created:", supp.name, supp.cycleDate);
+
+//       if (!supp.cycleDate) {
+//         //console.error("❌ Missing cycleDate for supplement:", supp);
+//         continue;
+//       }
+
+//       scheduletNotification(req.user.deviceToken, supp.name, supp.cycleDate, supp.time);
+
+//       const populatedSupplement = await Supplement.findById(supp._id).populate(
+//         "user",
+//         "deviceToken notificationSettings"
+//       );
+
+//       setTimeout(async () => {
+//         try {
+//           await scheduleStatusCheck(populatedSupplement);
+//         } catch (err) {
+//           //console.error("Error scheduling status check:", err);
+//         }
+//       }, 500);
+//     }
+
+//     res.status(201).json({
+//       success: true,
+//       message: `Supplements created with frequency: ${frequency}`,
+//       data: savedSupplements,
+//     });
+//   } catch (error) {
+//     //console.error("Error creating supplement:", error);
+//     res.status(500).json({ success: false, message: "Server error", error: error.message });
+//   }
+// };
+
 export const createSupplement = async (req, res) => {
   try {
     const { name, form, reason, day, time, frequency, daysOfWeek, cycle, interval } = req.body;
@@ -290,11 +580,9 @@ export const createSupplement = async (req, res) => {
       });
     }
 
-    //console.log(">>>>>>>>>> Request Body: ", req.body);
-
-    let supplements = [];
+    const supplements = [];
     const today = new Date();
-    const cycleId = uuidv4(); // 🔑 unique id for this cycle
+    const cycleId = uuidv4();
 
     // Helper: merge date + time
     const withTime = (date, timeStr) => {
@@ -304,66 +592,49 @@ export const createSupplement = async (req, res) => {
       return d;
     };
 
-    // //console.log(frequency);
-    // return;
-
     // 🔹 1. Every day
     if (frequency === "Every day") {
-      //console.log("frequency === Every day");
-
       const start = new Date(today);
       const end = new Date(start);
-      end.setMonth(end.getMonth() + 1); // generate 1 month of supplements
+      end.setMonth(end.getMonth() + 1);
 
       let current = new Date(start);
-
       while (current <= end) {
-        //console.log("Creating supplement for:", current.toDateString());
-
-        supplements.push(
-          new Supplement({
-            name,
-            form,
-            reason,
-            day: current.getDay(),              // auto-detect weekday (0=Sunday ... 6=Saturday)
-            time,
-            date: withTime(current, time),      // full datetime
-            status: "pending",
-            user: req.user.id,
-            cycleDate: withTime(current, time),
-            cycleId,
-          })
-        );
-
-        current.setDate(current.getDate() + 1); // move to next day
+        supplements.push({
+          name,
+          form,
+          reason,
+          day: current.getDay(),
+          time,
+          date: withTime(current, time),
+          status: "pending",
+          user: req.user.id,
+          cycleDate: withTime(current, time),
+          cycleId,
+        });
+        current.setDate(current.getDate() + 1);
       }
     }
-
 
     // 🔹 2. Every other day
     else if (frequency === "Every other day") {
       const start = new Date(today);
       const end = new Date(start);
-      end.setMonth(end.getMonth() + 1); // generate 1 month ahead
+      end.setFullYear(end.getFullYear() + 1);
 
       let current = new Date(start);
-
       while (current <= end) {
-        supplements.push(
-          new Supplement({
-            name,
-            form,
-            reason,
-            day: current.getDay(),              // auto-detect weekday
-            time,
-            status: "pending",
-            user: req.user.id,
-            cycleDate: withTime(current, time), // full datetime
-            cycleId,
-          })
-        );
-
-        // 🔑 move 2 days ahead each time
+        supplements.push({
+          name,
+          form,
+          reason,
+          day: current.getDay(),
+          time,
+          status: "pending",
+          user: req.user.id,
+          cycleDate: withTime(current, time),
+          cycleId,
+        });
         current.setDate(current.getDate() + 2);
       }
     }
@@ -372,24 +643,22 @@ export const createSupplement = async (req, res) => {
     else if (frequency === "Specific days of the week" && Array.isArray(daysOfWeek)) {
       const start = new Date(today);
       const end = new Date(start);
-      end.setMonth(end.getMonth() + 1);
+      end.setFullYear(end.getFullYear() + 1);
 
       let current = new Date(start);
       while (current <= end) {
         if (daysOfWeek.includes(current.getDay())) {
-          supplements.push(
-            new Supplement({
-              name,
-              form,
-              reason,
-              day: current.getDay(),
-              time,
-              status: "pending",
-              user: req.user.id,
-              cycleDate: withTime(current, time),
-              cycleId,
-            })
-          );
+          supplements.push({
+            name,
+            form,
+            reason,
+            day: current.getDay(),
+            time,
+            status: "pending",
+            user: req.user.id,
+            cycleDate: withTime(current, time),
+            cycleId,
+          });
         }
         current.setDate(current.getDate() + 1);
       }
@@ -398,23 +667,23 @@ export const createSupplement = async (req, res) => {
     // 🔹 4. On a recurring cycle
     else if (frequency === "On a recurring cycle" && cycle?.startDate && cycle?.repeat) {
       const start = new Date(cycle.startDate);
-      const end = cycle.endDate ? new Date(cycle.endDate) : new Date(start.getTime() + 30 * 24 * 60 * 60 * 1000);
+      const end = cycle.endDate
+        ? new Date(cycle.endDate)
+        : new Date(start.getFullYear() + 30 * 24 * 60 * 60 * 1000);
 
       let current = new Date(start);
       while (current <= end) {
-        supplements.push(
-          new Supplement({
-            name,
-            form,
-            reason,
-            day: current.getDay(),
-            time,
-            status: "pending",
-            user: req.user.id,
-            cycleDate: withTime(current, time),
-            cycleId,
-          })
-        );
+        supplements.push({
+          name,
+          form,
+          reason,
+          day: current.getDay(),
+          time,
+          status: "pending",
+          user: req.user.id,
+          cycleDate: withTime(current, time),
+          cycleId,
+        });
         current.setDate(current.getDate() + cycle.repeat);
       }
     }
@@ -423,26 +692,21 @@ export const createSupplement = async (req, res) => {
     else if (frequency === "Every X days" && interval) {
       const start = new Date(today);
       const end = new Date(start);
-      end.setMonth(end.getMonth() + 1);
+      end.setFullYear(end.getFullYear() + 1);
 
       let current = new Date(start);
-
       while (current <= end) {
-        supplements.push(
-          new Supplement({
-            name,
-            form,
-            reason,
-            day: current.getDay(),
-            time,
-            status: "pending",
-            user: req.user.id,
-            cycleDate: withTime(current, time),
-            cycleId,
-          })
-        );
-
-        // ✅ add (interval + 1) days instead of interval
+        supplements.push({
+          name,
+          form,
+          reason,
+          day: current.getDay(),
+          time,
+          status: "pending",
+          user: req.user.id,
+          cycleDate: withTime(current, time),
+          cycleId,
+        });
         current = new Date(current.getTime() + (interval + 1) * 24 * 60 * 60 * 1000);
       }
     }
@@ -451,109 +715,104 @@ export const createSupplement = async (req, res) => {
     else if (frequency === "Every X weeks" && interval) {
       const start = new Date(today);
       const end = new Date(start);
-      end.setMonth(end.getMonth() + 3); // 👉 3 months tak supplements banao
+      end.setFullYear(end.getFullYear() + 1);
 
       let current = new Date(start);
-
       while (current <= end) {
-        supplements.push(
-          new Supplement({
-            name,
-            form,
-            reason,
-            day: current.getDay(),            // weekday (0–6)
-            time,
-            status: "pending",
-            user: req.user.id,
-            cycleDate: withTime(current, time), // full datetime
-            cycleId,
-          })
-        );
-
-        // ✅ move ahead by "interval" * 7 days
+        supplements.push({
+          name,
+          form,
+          reason,
+          day: current.getDay(),
+          time,
+          status: "pending",
+          user: req.user.id,
+          cycleDate: withTime(current, time),
+          cycleId,
+        });
         current = new Date(current.getTime() + interval * 7 * 24 * 60 * 60 * 1000);
       }
     }
-
 
     // 🔹 7. Every X months
     else if (frequency === "Every X months" && interval) {
       const start = new Date(today);
       const end = new Date(start);
-      end.setFullYear(end.getFullYear() + 1); // 👉 1 saal tak supplements create karo
+      end.setFullYear(end.getFullYear() + 1);
 
+      
       let current = new Date(start);
-
       while (current <= end) {
-        supplements.push(
-          new Supplement({
-            name,
-            form,
-            reason,
-            day: current.getDay(),             // weekday (0–6)
-            time,
-            status: "pending",
-            user: req.user.id,
-            cycleDate: withTime(current, time), // full datetime
-            cycleId,
-          })
-        );
-
-        // ✅ move ahead by "interval" months
+        supplements.push({
+          name,
+          form,
+          reason,
+          day: current.getDay(),
+          time,
+          status: "pending",
+          user: req.user.id,
+          cycleDate: withTime(current, time),
+          cycleId,
+        });
         current.setMonth(current.getMonth() + interval);
       }
     }
 
     // 🔹 8. Only as needed
     else if (frequency === "Only as needed") {
-      supplements.push(
-        new Supplement({
-          name,
-          form,
-          reason,
-          time,
-          status: "pending",
-          user: req.user.id,
-          cycleId,
-        })
-      );
+      supplements.push({
+        name,
+        form,
+        reason,
+        time,
+        status: "pending",
+        user: req.user.id,
+        cycleId,
+      });
     }
 
     // ✅ Save all supplements
     const savedSupplements = await Supplement.insertMany(supplements);
 
-    // ✅ Schedule notifications
-    for (let supp of savedSupplements) {
-      //console.log(">>> Supplement created:", supp.name, supp.cycleDate);
-
-      if (!supp.cycleDate) {
-        //console.error("❌ Missing cycleDate for supplement:", supp);
-        continue;
-      }
-
-      scheduletNotification(req.user.deviceToken, supp.name, supp.cycleDate, supp.time);
-
-      const populatedSupplement = await Supplement.findById(supp._id).populate(
-        "user",
-        "deviceToken notificationSettings"
-      );
-
-      setTimeout(async () => {
-        try {
-          await scheduleStatusCheck(populatedSupplement);
-        } catch (err) {
-          //console.error("Error scheduling status check:", err);
-        }
-      }, 500);
-    }
-
+    // ✅ Return same response immediately (no change)
     res.status(201).json({
       success: true,
       message: `Supplements created with frequency: ${frequency}`,
       data: savedSupplements,
     });
+
+    
+// console.log(">> Supplements saved and response sent to client.");
+
+    // ✅ Background notification + status scheduling (non-blocking)
+    setImmediate(async () => {
+
+      // console.log(">>>>  Starting background notification scheduling...");
+
+
+      for (const supp of savedSupplements) {
+        if (!supp.cycleDate) continue;
+
+        try {
+
+          // console.log(`>>> Scheduling notification for ${supp.name} at ${supp.cycleDate}`);
+
+          scheduletNotification(req.user.deviceToken, supp.name, supp.cycleDate, supp.time);
+
+          const populated = await Supplement.findById(supp._id).populate(
+            "user",
+            "deviceToken notificationSettings"
+          );
+
+          await scheduleStatusCheck(populated);
+        } catch (err) {
+          console.error("Background task error:", err.message);
+        }
+      }
+      //  console.log(">>. All background notification scheduling completed.");
+    });
   } catch (error) {
-    //console.error("Error creating supplement:", error);
+    console.error("Error creating supplement:", error);
     res.status(500).json({ success: false, message: "Server error", error: error.message });
   }
 };
