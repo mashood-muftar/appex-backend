@@ -975,7 +975,7 @@ export const getTodaysSupplements = async (req, res) => {
     const currentDate = new Date(today.getFullYear(), today.getMonth(), today.getDate());
 
     
-    // console.log('getTodaysSupplements',today);
+    console.log('getTodaysSupplements',today);
     
     // Build query to find supplements for today
     const query = {
@@ -1025,30 +1025,37 @@ export const getTodaysSupplements = async (req, res) => {
   }
 };
 
-
 export const getTodaySupplements = async (req, res) => {
   try {
     const today = new Date();
-    const currentDay = today.getDay(); // 0-6 representing Sunday-Saturday
-    const currentDate = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    const startOfToday = new Date(today);
+    startOfToday.setHours(0, 0, 0, 0);
 
+    const endOfToday = new Date(today);
+    endOfToday.setHours(23, 59, 59, 999);
+
+    console.log('today',today);
+    console.log('startOfToday',startOfToday);
+    console.log('endOfToday',endOfToday);
     
-    console.log('getTodaySupplements',currentDay,req.user.id);
-    
-    // Build query to find supplements for today
+    // Query using date field (includes time components)
     const query = {
       user: req.user.id,
-      day: currentDay
+      date: { 
+        $gte: startOfToday, 
+        $lte: endOfToday 
+      }
     };
-    
-    // Get supplements and sort by time
+
     const supplements = await Supplement.find(query).sort({ time: 1 });
 
+    console.log('supplements',supplements);
+    
     res.json({
       success: true,
       count: supplements.length,
-      date: currentDate.toISOString().split('T')[0], // YYYY-MM-DD
-      data: supplements[0]
+      date: today.toISOString().split('T')[0],
+      data: supplements
     });
 
   } catch (error) {
