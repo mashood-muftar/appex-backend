@@ -1068,6 +1068,10 @@ export const getTodaySupplements = async (req, res) => {
     const endOfToday = new Date(today);
     endOfToday.setHours(23, 59, 59, 999);
 
+    console.log('today',today);
+    console.log('startOfToday',startOfToday);
+    console.log('endOfToday',endOfToday);
+    
     // Query using date field (includes time components)
     const query = {
       user: req.user.id,
@@ -1079,6 +1083,8 @@ export const getTodaySupplements = async (req, res) => {
 
     const supplements = await Supplement.find(query).sort({ time: 1 });
 
+    console.log('supplements',supplements);
+    
     res.json({
       success: true,
       count: supplements.length,
