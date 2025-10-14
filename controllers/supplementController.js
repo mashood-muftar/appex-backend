@@ -1059,33 +1059,63 @@ export const getTodaysSupplements = async (req, res) => {
   }
 };
 
-
 export const getTodaySupplements = async (req, res) => {
   try {
     const today = new Date();
-    const currentDay = today.getDay(); // 0-6 representing Sunday-Saturday
-    const currentDate = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    
+    // Create start and end of today for date range query
+    const startOfToday = new Date(today);
+    startOfToday.setHours(0, 0, 0, 0); // Start of today (00:00:00)
 
+    const endOfToday = new Date(today);
+    endOfToday.setHours(23, 59, 59, 999); // End of today (23:59:59)
     
-    console.log('getTodaySupplements',currentDay,req.user.id);
-    
-    // Build query to find supplements for today
+    console.log('getTodaySupplements', {
+      today: today.toISOString(),
+      startOfToday: startOfToday.toISOString(),
+      endOfToday: endOfToday.toISOString(),
+      userId: req.user.id
+    });
+
+    // Build query to find supplements for today using date comparison
     const query = {
       user: req.user.id,
-      day: currentDay
+      $or: [
+        // Option 1: If you have normalizedDate field
+        { normalizedDate: { $gte: startOfToday, $lte: endOfToday } },
+        
+        // Option 2: If you have date field with time components
+        { date: { $gte: startOfToday, $lte: endOfToday } },
+        
+        // Option 3: If you have cycleDate field
+        { cycleDate: { $gte: startOfToday, $lte: endOfToday } }
+      ]
     };
-    
+
+    // If you're not sure which field exists, use this simpler approach:
+    // const query = {
+    //   user: req.user.id,
+    //   $or: [
+    //     { normalizedDate: { $gte: startOfToday, $lte: endOfToday } },
+    //     { date: { $gte: startOfToday, $lte: endOfToday } },
+    //     { cycleDate: { $gte: startOfToday, $lte: endOfToday } }
+    //   ]
+    // };
+
     // Get supplements and sort by time
     const supplements = await Supplement.find(query).sort({ time: 1 });
+
+    console.log(`Found ${supplements.length} supplements for today`);
 
     res.json({
       success: true,
       count: supplements.length,
-      date: currentDate.toISOString().split('T')[0], // YYYY-MM-DD
-      data: supplements[0]
+      date: today.toISOString().split('T')[0], // YYYY-MM-DD
+      data: supplements // Fixed: returning all supplements, not just first one
     });
 
   } catch (error) {
+    console.error('Error in getTodaySupplements:', error);
     res.status(500).json({
       success: false,
       message: 'Server error',
