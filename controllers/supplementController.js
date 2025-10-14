@@ -41,6 +41,9 @@ export const sendTestNotification = async (deviceToken,name,time) => {
       throw new Error("Device token is required");    
     }
 
+    console.log(`📲 Attempting to send test notification to token: ${deviceToken}`);
+    console.log(`💊 Supplement: ${name} | Scheduled Time: ${time}`);
+
     const message = {
       notification: {
         title: "EmberOn",
@@ -229,44 +232,67 @@ export const getTakenSupplements = async (req, res) => {
 };
 
 
-
-
-
-
 export const scheduletNotification = async (deviceToken, name, date, time) => {
   const now = new Date();
-
-  // Date already has time included
   let target = new Date(date);
 
-  // Agar target already past hai → skip (ya DB mein mark karo "missed")
   if (target <= now) {
-    //console.log(`⚠️ Skipping past schedule for ${target.toLocaleString()}`);
     return;
   }
 
   let diffMs = target.getTime() - now.getTime();
 
-  // (Optional) Agar 5h pehle bhejna hai
-   diffMs = diffMs - 300 * 60 * 1000;
-
   if (diffMs > 2147483647) {
-    //console.log("⚠️ Delay too long, skipping direct setTimeout. Use cron instead.");
     return;
   }
-
-  // //console.log(
-  //   `⏳ Scheduling notification for ${target.toLocaleString()} (in ${Math.round(diffMs / 1000 / 60)} minutes)`
-  // );
+  
+  console.log(
+    `⏳ Scheduling notification for ${target.toLocaleString()} (in ${Math.round(diffMs / 1000 / 60)} minutes)`
+  );
 
   setTimeout(async () => {
     try {
       sendTestNotification(deviceToken, name, target.toLocaleTimeString());
     } catch (err) {
-      //console.error("❌ Failed to send push:", err);
+      console.error("❌ Failed to send push:", err);
     }
   }, diffMs);
 };
+
+
+
+// export const scheduletNotification = async (deviceToken, name, date, time) => {
+//   const now = new Date();
+
+//   let target = new Date(date);
+
+//   if (target <= now) {
+//     //console.log(`⚠️ Skipping past schedule for ${target.toLocaleString()}`);
+//     return;
+//   }
+
+//   let diffMs = target.getTime() - now.getTime();
+
+
+//   //  diffMs = diffMs - 300 * 60 * 1000;
+
+//   if (diffMs > 2147483647) {
+//     //console.log("⚠️ Delay too long, skipping direct setTimeout. Use cron instead.");
+//     return;
+//   }
+
+//   // //console.log(
+//   //   `⏳ Scheduling notification for ${target.toLocaleString()} (in ${Math.round(diffMs / 1000 / 60)} minutes)`
+//   // );
+
+//   setTimeout(async () => {
+//     try {
+//       sendTestNotification(deviceToken, name, target.toLocaleTimeString());
+//     } catch (err) {
+//       //console.error("❌ Failed to send push:", err);
+//     }
+//   }, diffMs);
+// };
 
 // export const createSupplement = async (req, res) => {
 //   try {
@@ -740,7 +766,7 @@ export const createSupplement = async (req, res) => {
       const end = new Date(start);
       end.setFullYear(end.getFullYear() + 1);
 
-      
+
       let current = new Date(start);
       while (current <= end) {
         supplements.push({

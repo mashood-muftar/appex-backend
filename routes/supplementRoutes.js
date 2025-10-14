@@ -14,7 +14,8 @@ import {
   getTodaysSupplements,
   getTakenSupplements,
   deleteallortodaysupplement,
-  updateSupplementPills
+  updateSupplementPills,
+  sendTestNotification
 } from '../controllers/supplementController.js';
 import { authenticate } from '../middleware/authMiddleware.js';
 import { getDiaryPreview, shareDiary } from '../controllers/diaryController.js';
@@ -37,6 +38,7 @@ router.route('/:id')
   .put(updateSupplement)
   .delete(deleteSupplement);
 
+router.post('/test-notification', sendTestNotification);
 router.put('/:id/pills', updateSupplementPills);
 router.delete('/:id/delete', deleteallortodaysupplement);
 router.get('/status/taken', getTakenSupplements);

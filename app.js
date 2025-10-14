@@ -23,6 +23,8 @@ import { initializeAllSchedules, scheduleStatusReset } from './utils/schedulerSe
 
 import diaryRoutes from "./routes/diaryRoutes.js";
 
+process.env.TZ = 'Europe/London';
+
 const app = express();
 //automation checkig
 
@@ -62,6 +64,16 @@ app.use("/api/diaries", diaryRoutes);
 
 app.get('/', (req, res) => {
     res.send('Welcome to the EMBER ON API');
+});
+
+app.get('/api/check-timezone', (req, res) => {
+    console.log("checkingg....");
+  const now = new Date();
+  res.json({
+    server_time: now.toString(),
+    utc_time: now.toUTCString(),
+    timezone_offset_hours: now.getTimezoneOffset() / -60,
+  });
 });
 
 // Error handling middleware
