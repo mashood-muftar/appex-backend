@@ -1,3 +1,4 @@
+process.env.TZ = 'Europe/London';
 import express from 'express';
 import bodyParser from 'body-parser';
 import dotenv from 'dotenv';
@@ -23,7 +24,7 @@ import { initializeAllSchedules, scheduleStatusReset } from './utils/schedulerSe
 
 import diaryRoutes from "./routes/diaryRoutes.js";
 
-process.env.TZ = 'Europe/London';
+
 
 const app = express();
 //automation checkig

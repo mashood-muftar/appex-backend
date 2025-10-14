@@ -75,40 +75,6 @@ export const sendAppointmentNotification = async (deviceToken, name, time) => {
   await messaging.send(message);
 };
 
-// export const scheduletappointmentNotification = async (deviceToken, name, date, time) => {
-//   const now = new Date();
-
-//   // Date already has time included
-//   let target = new Date(date);
-
-//   // Agar target already past hai → skip (ya DB mein mark karo "missed")
-//   if (target <= now) {
-//     //console.log(`⚠️ Skipping past schedule for ${target.toLocaleString()}`);
-//     return;
-//   }
-
-//   let diffMs = target.getTime() - now.getTime();
-
-//   // (Optional) Agar 5h pehle bhejna hai
-//    diffMs = diffMs - 300 * 60 * 1000;
-
-//   if (diffMs > 2147483647) {
-//     //console.log("⚠️ Delay too long, skipping direct setTimeout. Use cron instead.");
-//     return;
-//   }
-
-//   //console.log(
-//   //   `⏳ Scheduling notification for ${target.toLocaleString()} (in ${Math.round(diffMs / 1000 / 60)} minutes)`
-//   // );
-
-//   setTimeout(async () => {
-//     try {
-//       sendAppointmentNotification(deviceToken, name, target.toLocaleTimeString());
-//     } catch (err) {
-//       //console.error("❌ Failed to send push:", err);
-//     }
-//   }, diffMs);
-// };
 
 export const scheduletappointmentNotification = async (deviceToken, name, date, time) => {
   const now = DateTime.now().setZone("Europe/London"); // Current time in UK
