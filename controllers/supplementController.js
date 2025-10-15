@@ -294,7 +294,7 @@ export const createSupplement = async (req, res) => {
     if (frequency === "Every day") {
       const start = new Date(today);
       const end = new Date(start);
-      end.setMonth(end.getMonth() + 1);
+      end.setFullYear(end.getFullYear() + 1);
 
       let current = new Date(start);
       while (current <= end) {
