@@ -39,13 +39,13 @@ router.patch('/reject/:requestId', rejectFriendRequest);
 // Get pending friend requests
 router.get('/pending', getPendingRequests);
 
-router.get('contact/', getContacts);
-router.get('contact/:id', getContact);
-router.post('contact/', createContact);
-router.put('contact/:id', updateContact);
-router.delete('contact/:id', deleteContact);
-router.patch('contact/:id/status', updateContactStatus);
-router.post('contact/bulk', bulkCreateContacts);
+router.get('/contact', getContacts);
+router.get('/contact/:id', getContact);
+router.post('/contact/', createContact);
+router.put('/contact/:id', updateContact);
+router.delete('/contact/:id', deleteContact);
+router.patch('/contact/:id/status', updateContactStatus);
+router.post('/contact/bulk', bulkCreateContacts);
 
 
 export default router;
