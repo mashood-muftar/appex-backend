@@ -238,3 +238,226 @@ export const getPendingRequests = async (req, res) => {
     return res.status(500).json({ error: 'Failed to get pending requests' });
   }
 };
+
+/**
+   * Get all contacts for a user
+   */
+  export const getContacts: async (req, res, next) => {
+    try {
+      const userId = req.user.id; // Assuming you have user auth middleware
+      const { type } = req.query; // Optional filter by type: 'share' or 'invite'
+
+      const contacts = await Contact.getUserContacts(userId, type);
+
+      return next(CustomSuccess.success(contacts, 'Contacts retrieved successfully'));
+
+    } catch (error) {
+      return next(CustomError.badRequest(error.message));
+    }
+  },
+
+  /**
+   * Get single contact by ID
+   */
+  getContact: async (req, res, next) => {
+    try {
+      const { id } = req.params;
+      const userId = req.user.id;
+
+      const contact = await Contact.findOne({ _id: id, userId, isActive: true });
+
+      if (!contact) {
+        return next(CustomError.notFound('Contact not found'));
+      }
+
+      return next(CustomSuccess.success(contact, 'Contact retrieved successfully'));
+
+    } catch (error) {
+      return next(CustomError.badRequest(error.message));
+    }
+  },
+
+  /**
+   * Create new contact
+   */
+  createContact: async (req, res, next) => {
+    try {
+      const userId = req.user.id;
+      const { name, phone, email, type = 'invite' } = req.body;
+
+      // Validate required fields
+      if (!name || !phone) {
+        return next(CustomError.badRequest('Name and phone are required'));
+      }
+
+      // Check if contact already exists for this user
+      const existingContact = await Contact.findOne({ userId, phone, isActive: true });
+      if (existingContact) {
+        return next(CustomError.badRequest('Contact already exists'));
+      }
+
+      const newContact = new Contact({
+        userId,
+        name,
+        phone,
+        email,
+        type
+      });
+
+      await newContact.save();
+
+      return next(CustomSuccess.created(newContact, 'Contact created successfully'));
+
+    } catch (error) {
+      if (error.code === 11000) {
+        return next(CustomError.badRequest('Contact already exists'));
+      }
+      return next(CustomError.badRequest(error.message));
+    }
+  },
+
+  /**
+   * Update contact
+   */
+  updateContact: async (req, res, next) => {
+    try {
+      const { id } = req.params;
+      const userId = req.user.id;
+      const { name, phone, email, status, type } = req.body;
+
+      const contact = await Contact.findOne({ _id: id, userId, isActive: true });
+
+      if (!contact) {
+        return next(CustomError.notFound('Contact not found'));
+      }
+
+      // Update fields if provided
+      if (name) contact.name = name;
+      if (phone) contact.phone = phone;
+      if (email) contact.email = email;
+      if (status) contact.status = status;
+      if (type) contact.type = type;
+
+      await contact.save();
+
+      return next(CustomSuccess.success(contact, 'Contact updated successfully'));
+
+    } catch (error) {
+      return next(CustomError.badRequest(error.message));
+    }
+  },
+
+  /**
+   * Delete contact (soft delete)
+   */
+  deleteContact: async (req, res, next) => {
+    try {
+      const { id } = req.params;
+      const userId = req.user.id;
+
+      const contact = await Contact.findOne({ _id: id, userId, isActive: true });
+
+      if (!contact) {
+        return next(CustomError.notFound('Contact not found'));
+      }
+
+      // Soft delete by setting isActive to false
+      contact.isActive = false;
+      await contact.save();
+
+      return next(CustomSuccess.success(null, 'Contact deleted successfully'));
+
+    } catch (error) {
+      return next(CustomError.badRequest(error.message));
+    }
+  },
+
+  /**
+   * Update contact status
+   */
+  updateContactStatus: async (req, res, next) => {
+    try {
+      const { id } = req.params;
+      const userId = req.user.id;
+      const { status } = req.body;
+
+      if (!status) {
+        return next(CustomError.badRequest('Status is required'));
+      }
+
+      const validStatuses = ['Invited', 'Accepted', 'Declined', 'Pending'];
+      if (!validStatuses.includes(status)) {
+        return next(CustomError.badRequest('Invalid status'));
+      }
+
+      const contact = await Contact.findOne({ _id: id, userId, isActive: true });
+
+      if (!contact) {
+        return next(CustomError.notFound('Contact not found'));
+      }
+
+      contact.status = status;
+      await contact.save();
+
+      return next(CustomSuccess.success(contact, 'Contact status updated successfully'));
+
+    } catch (error) {
+      return next(CustomError.badRequest(error.message));
+    }
+  },
+
+  /**
+   * Bulk create contacts
+   */
+  bulkCreateContacts: async (req, res, next) => {
+    try {
+      const userId = req.user.id;
+      const { contacts } = req.body;
+
+      if (!Array.isArray(contacts) || contacts.length === 0) {
+        return next(CustomError.badRequest('Contacts array is required'));
+      }
+
+      const contactsToCreate = contacts.map(contact => ({
+        userId,
+        name: contact.name,
+        phone: contact.phone,
+        email: contact.email || '',
+        type: contact.type || 'invite',
+        status: contact.status || 'Invited'
+      }));
+
+      // Remove duplicates based on phone number
+      const uniqueContacts = [];
+      const phoneSet = new Set();
+      
+      for (const contact of contactsToCreate) {
+        if (!phoneSet.has(contact.phone)) {
+          phoneSet.add(contact.phone);
+          uniqueContacts.push(contact);
+        }
+      }
+
+      // Check for existing contacts
+      const existingPhones = await Contact.find({
+        userId,
+        phone: { $in: Array.from(phoneSet) },
+        isActive: true
+      }).select('phone');
+
+      const existingPhoneSet = new Set(existingPhones.map(c => c.phone));
+      const newContacts = uniqueContacts.filter(contact => !existingPhoneSet.has(contact.phone));
+
+      if (newContacts.length === 0) {
+        return next(CustomError.badRequest('All contacts already exist'));
+      }
+
+      const createdContacts = await Contact.insertMany(newContacts);
+
+      return next(CustomSuccess.created(createdContacts, `${createdContacts.length} contacts created successfully`));
+
+    } catch (error) {
+      return next(CustomError.badRequest(error.message));
+    }
+  }
+};
