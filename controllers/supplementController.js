@@ -807,7 +807,7 @@ export const getTodaySupplements = async (req, res) => {
       success: true,
       count: supplements.length,
       date: currentDate.toISOString().split('T')[0], // YYYY-MM-DD
-      data: supplements[0]
+      data: supplements
     });
 
   } catch (error) {
